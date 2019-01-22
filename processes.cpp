@@ -9,11 +9,27 @@ $ ps -A | grep argv[1] | wc - l
 our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
 
 Parent, wait for child
-    base on code we saw in class?
+
 Child wc -l redirected from a grand-child's stdout no change 
 
 Grand-child grep argv[1] redirected from a great-grand-child's stdout redirected to a child's stdin
+
 Great-grand-child ps -A no change redirected to a grand-child's stdin
+
+https://stackoverflow.com/questions/7861093/fork-execlp-in-linux
+
+
+https://superuser.com/questions/21067/windows-equivalent-of-whereis
+https://stackoverflow.com/questions/15250008/third-process-wc-wont-work
+https://stackoverflow.com/questions/21558937/i-do-not-understand-how-execlp-works-in-linux
+https://linux.die.net/man/3/execlp
+https://stackoverflow.com/questions/40451305/how-to-know-if-a-process-is-a-parent-or-a-child
+
+http://www.csl.mtu.edu/cs4411.ck/www/NOTES/process/fork/create.html
+
+http://man7.org/linux/man-pages/man2/dup.2.html
+
+
 */
 
 /*
@@ -37,6 +53,25 @@ int close( int fd );
 
 */
 
+#include <stdlib.h>     // for exit
+#include <stdio.h>      // for perror
+#include <unistd.h>     // for fork, pipe
+#include <sys/wait.h>   // for wait
+#include <iostream>     // for cerr, cout
+
+using namespace std;
+
+/*
+our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
+
+Parent, wait for child , no changes to in/out
+
+Child wc -l redirected from a grand-child's stdout no change 
+
+Grand-child grep argv[1] redirected from a great-grand-child's stdout redirected to a child's stdin
+
+Great-grand-child ps -A no change redirected to a grand-child's stdin
+*/
 //(int argc, char *argv[]) to receive arguments
 int main((int argc, char *argv[]){
 
@@ -46,7 +81,100 @@ int main((int argc, char *argv[]){
     //create root process?
     //create a child process
     //redirect pipes
+    // fork another process 
+
+    enum {RD, WR}; // pipe fd index RD=0, WR=1
+    int n, fd[2];
+    
+    //char buff[100];
+
+    int pid; // process ID
+    //pid_t p;
+    //pid = p fork();
+
+    if(pipe(f1) < 0){
+        fprintf(stderr, "Pipe Failed");
+        exit(EXIT_FAILURE);
+    }
+    pid = fork();
+
+    if (pid < 0) { // error occurred
+        fprintf(stderr, "Fork Failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // ---------- CHILD SECTION -----------   
+    else if (pid == 0) {
+        sleep(2);
+        
+        //close(1); unnecessary as dup2 is structured differently
+
+        dup2()
+
+        //different exec
+        
+        //where wc
+        //C:\Program Files\Git\usr\bin\wc.exe
+        //execlp("/bin/ls","ls","-l",NULL);
+        execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
+    }
+        else if (pid == 1) {
+        sleep(2);
+
+        //different exec
+        
+        //where wc
+        //C:\Program Files\Git\usr\bin\wc.exe
+        //execlp("/bin/ls","ls","-l",NULL);
+        execlp("\Program Files\Git\usr\bin\grep","wc","-l",NULL);
+    }
+        else if (pid == 2) {
+        sleep(2);
+
+        //different exec
+        
+        //where wc
+        //C:\Program Files\Git\usr\bin\wc.exe
+        //execlp("/bin/ls","ls","-l",NULL);
+        execlp("/bin/wc","wc","-l",NULL);
+    }
+    //need to do multiple children sections?
+    // ---------- PARENT SECTION ----------
+    else {
+        // parent will wait for the child to complete
+        wait(NULL);
+        sleep(5);
+        printf("Child Complete");
+        exit(EXIT_SUCCESS);
+    }
 
 
-
+    exit(EXIT_SUCCESS);
 }
+
+/*
+   if( pipe(fd) < 0 ) // 1: pipe created
+      perror("pipe error");
+   else if ((pid = fork()) < 0) // 2: child forked
+      perror("fork error");
+   else if (pid == 0) {
+      // ---------- CHILD SECTION ----------
+      close(fd[WR]);// 4: child's fd[1] closed
+      dup2(fd[RD], 0); // stdin(0) --> childs pipe read 
+
+      char buf[256];
+      n = read(fd[RD], buf, 256); // use this raw read!
+      // cin >> buf; <-- *caution with cin and white space!
+      cout << buf;      // write to stdout
+      cout << "Child Done!" << endl;
+   }
+   else {
+      // ---------- PARENT SECTION -----------
+      close(fd[RD]); // 3: close parent's read end of pipe
+      dup2(fd[WR], 2); // stderr(2) --> parent's pipe write 
+
+      cerr <<  "Hello my child" << endl;
+      wait( NULL );
+      cout << "Parent Done!" << endl;
+   }
+*/
