@@ -8,15 +8,16 @@ $ ps -A | grep argv[1] | wc - l
 
 our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
 
-Parent, wait for child
+Parent, wait for child      stdin no change                                 stdout no chage
 
-Child wc -l redirected from a grand-child's stdout no change 
+Child wc -l                 stdin redirected from a grand-child's           stdout no change 
 
-Grand-child grep argv[1] redirected from a great-grand-child's stdout redirected to a child's stdin
+Grand-child grep argv[1]    stdin redirected from a great-grand-child's     stdout  redirected to a child's stdin
 
-Great-grand-child ps -A no change redirected to a grand-child's stdin
+Great-grand-child ps -A     stdin no change                                 stdout redirected to a grand-child's
 
 https://stackoverflow.com/questions/7861093/fork-execlp-in-linux
+https://gist.github.com/mplewis/5279108
 
 
 https://superuser.com/questions/21067/windows-equivalent-of-whereis
@@ -64,13 +65,13 @@ using namespace std;
 /*
 our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
 
-Parent, wait for child , no changes to in/out
+Parent, wait for child      stdin no change                                 stdout no chage
 
-Child wc -l redirected from a grand-child's stdout no change 
+Child wc -l                 stdin redirected from a grand-child's           stdout no change 
 
-Grand-child grep argv[1] redirected from a great-grand-child's stdout redirected to a child's stdin
+Grand-child grep argv[1]    stdin redirected from a great-grand-child's     stdout  redirected to a child's stdin
 
-Great-grand-child ps -A no change redirected to a grand-child's stdin
+Great-grand-child ps -A     stdin no change                                 stdout redirected to a grand-child's
 */
 //(int argc, char *argv[]) to receive arguments
 int main((int argc, char *argv[]){
@@ -84,7 +85,7 @@ int main((int argc, char *argv[]){
     // fork another process 
 
     enum {RD, WR}; // pipe fd index RD=0, WR=1
-    int n, fd[2];
+    int fd[2], fd2[2];
     
     //char buff[100];
 
@@ -92,7 +93,7 @@ int main((int argc, char *argv[]){
     //pid_t p;
     //pid = p fork();
 
-    if(pipe(f1) < 0){
+    if(pipe(fd) < 0){
         fprintf(stderr, "Pipe Failed");
         exit(EXIT_FAILURE);
     }
@@ -107,37 +108,20 @@ int main((int argc, char *argv[]){
     else if (pid == 0) {
         sleep(2);
         
-        //close(1); unnecessary as dup2 is structured differently
+        //close(1);dup(f1[1]); == dup2(f1[1], 1);
 
-        dup2()
+        dup2(fd[1],1)
+        
 
         //different exec
         
         //where wc
         //C:\Program Files\Git\usr\bin\wc.exe
-        //execlp("/bin/ls","ls","-l",NULL);
         execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
     }
-        else if (pid == 1) {
-        sleep(2);
+    // execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
+    // execlp("\Program Files\Git\usr\bin\grep","grep","-l",NULL);
 
-        //different exec
-        
-        //where wc
-        //C:\Program Files\Git\usr\bin\wc.exe
-        //execlp("/bin/ls","ls","-l",NULL);
-        execlp("\Program Files\Git\usr\bin\grep","wc","-l",NULL);
-    }
-        else if (pid == 2) {
-        sleep(2);
-
-        //different exec
-        
-        //where wc
-        //C:\Program Files\Git\usr\bin\wc.exe
-        //execlp("/bin/ls","ls","-l",NULL);
-        execlp("/bin/wc","wc","-l",NULL);
-    }
     //need to do multiple children sections?
     // ---------- PARENT SECTION ----------
     else {
