@@ -26,10 +26,13 @@ int main((int argc, char *argv[]){
     //pid_t p;
     //pid = p fork();
 
+    //pid_t pid;
+    //((pid = fork()) <0)
     //create pipe
     if(pipe(fd) < 0){
         fprintf(stderr, "Pipe Failed");
         exit(EXIT_FAILURE);
+        //perror("pipe error");
     }
 
     //first fork (parent to child for WC)
@@ -37,9 +40,10 @@ int main((int argc, char *argv[]){
     if (pid < 0) { // error occurred
         fprintf(stderr, "Fork Failed");
         exit(EXIT_FAILURE);
+        //perror("fork error");
     }
 
-    // ---------- CHILD SECTION -----------   
+    // ---------- CHILD SECTIONS -----------   
     else if (pid == 0) {
         //sleep may or may not be necessary
         sleep(2);
@@ -67,6 +71,7 @@ int main((int argc, char *argv[]){
     if(pipe(fd2) < 0){
         fprintf(stderr, "Second Pipe Failed");
         exit(EXIT_FAILURE);
+        //perror("2nd pipe error");
     }
 
     //2nd fork (child to grandchild) for grep
@@ -75,6 +80,7 @@ int main((int argc, char *argv[]){
     if(pid < 0){
         fprintf(stderr, "Second Fork Failed");
         exit(EXIT_FAILURE);
+        //perror("2nd fork error");        
     }
     //Usage: grep [OPTION]... PATTERN [FILE]...
     //Search for PATTERN in each FILE or standard input.
@@ -114,6 +120,7 @@ int main((int argc, char *argv[]){
     if(pid < 0){
         fprintf(stderr, "Third Fork Failed");
         exit(EXIT_FAILURE);
+        //perror("3rd fork error");
     }
 
     else if(pid == 0){
@@ -150,6 +157,12 @@ int main((int argc, char *argv[]){
 
 
 /*
+
+test code
+Need to find a process name? 
+grep format is grep 'PATTERN' <file>
+argv[1] == 'PATTERN' only?, also fed <file> from ps- a?
+
 Code a C++ program, named processes.cpp that receives one argument, 
 (i.e., argv[1]) upon its invocation and searches how many processes 
 whose name is given in argv[1] are running on the system where your program has been invoked. 
