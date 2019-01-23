@@ -9,23 +9,28 @@ using namespace std;
 
 int main(int argc, char *argv[]){
 
-    int count = 0;// the number of instances
     //argv[1] search how many processes whose name is given are running on the system where your program has been involved
 
     //create root process?
     //create a child process
     //redirect pipes
     // fork another process 
-
+    printf("Flag 0");
+    fflush(stdout);
     enum {RD, WR}; // pipe fd index RD=0, WR=1
-    int fd[2], fd2[2];
+    int fd[2], fd2[2], filedescriptor[2];
     
     //char buff[100];
 
-    int pid; // process ID
-    //pid_t p;
+    //int pid; // process ID
+    pid_t pid;
     //pid = p fork();
 
+
+    if(pipe(filedescriptor) < 0){
+        fprintf(stderr, "Pipe Failed");
+        exit(EXIT_FAILURE);
+    }
     //pid_t pid;
     //((pid = fork()) <0)
     //create pipe
@@ -34,9 +39,13 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);
         //perror("pipe error");
     }
-
+    printf("pid = %ld\n", (long)pid);
     //first fork (parent to child for WC)
     pid = fork();//storing pid
+    printf("pid = %ld\n", (long)pid);
+    
+    printf("Flag 0.1");
+    fflush(stdout);
     if (pid < 0) { // error occurred
         fprintf(stderr, "Fork Failed");
         exit(EXIT_FAILURE);
@@ -44,10 +53,14 @@ int main(int argc, char *argv[]){
     }
 
     // ---------- CHILD SECTIONS -----------   
-    else if (pid == 0) {
+    else if ((long)pid == 0) {
+        printf("Flag 1");
+        fflush(stdout);
         //sleep may or may not be necessary
         sleep(2);
 
+
+        /*
         //for DUP2
         //output
         dup2(fd[1],1);
@@ -59,12 +72,21 @@ int main(int argc, char *argv[]){
         close(fd[1]);
         //close (fd[WR]); //close child's write
         //may not need to do this
+        */
 
+        dup2(fd[0], 0); //opening read (reading from pipe)
+        dup2(fd[1], STDOUT_FILENO);
+        //close(fd[1]); //closing write (not writing to pipe)
+        //close(fd[0]);
+        
         //where wc
         //C:\Program Files\Git\usr\bin\wc.exe
         //execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
         //execlp("usr\bin\wc","wc","-l",NULL);
+        
+        
         execlp("wc","wc","-l",NULL);
+        wait(NULL);
         
         //Error state for execlp
         //perror("bad exec ws");
@@ -89,7 +111,11 @@ int main(int argc, char *argv[]){
 
 
     else if(pid == 0){
-        //fd --> grep --> fd2
+        printf("Flag 2");
+        fflush(stdout);
+
+        
+        /*
         //input from first pipe
         dup2(fd[0],0);
         //dup2(fd[RD],0); //Reading input from first pipe
@@ -103,11 +129,21 @@ int main(int argc, char *argv[]){
         close(fd[1]);
         close(fd2[0]);
         close(fd2[1]);
+        */
+        dup2(fd[1],1);//writing to first pipe
+        dup2(fd2[0],0); //reading from 2nd pipe
+        
+        //close all fds
+        close(fd[0]);
+        close(fd[1]);
+        close(fd2[0]);
+        close(fd2[1]);
 
         //May need to adjust
         //execlp("\Program Files\Git\usr\bin\grep","grep", argv[1],NULL);
         //execlp("usr\bin\grep","grep", argv[1],NULL);
         execlp("grep","grep", argv[1],NULL);
+        wait(NULL);
         
         //Error state for execlp
         //perror("bad exec grep");
@@ -127,10 +163,15 @@ int main(int argc, char *argv[]){
     }
 
     else if(pid == 0){
+        printf("Flag 3");
+        fflush(stdout);
+
+        /*
         //input from secondary pipe
         dup2(fd2[0],0);
         //dup2(fd2[RD],0); //great grandchild receiving input from 2nd pipe
-
+        */
+        dup2(fd2[1],1); //write to 2nd pipe
         //close fds
         close(fd2[0]);
         close(fd2[1]);
@@ -139,6 +180,7 @@ int main(int argc, char *argv[]){
         //execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
         //execlp("usr\bin\ps","ps","-a",NULL);
         execlp("ps","ps","-a",NULL);
+        wait(NULL);
         
         //Error state for execlp
         //perror("bad exec ps");
@@ -162,6 +204,28 @@ int main(int argc, char *argv[]){
 
 
 /*
+int n;
+
+char buf[100];
+
+
+ processes tty 
+
+                 ps -A | grep tty | wc -l 
+
+  
+
+                 processes Sys 
+
+                 ps -A | grep Sys | wc -l 
+
+  
+
+                 processes user 
+
+                 ps -A | grep user | wc - l
+
+    Need to figure out Piping structure, draw it.
 nguyew2@uw1-320-13:~$ g++ -std=c++14 -g -Wall -Wextra processes.cpp -o proc
 processes.cpp: In function ‘int main(int, char**)’:
 processes.cpp:12:9: warning: unused variable ‘count’ [-Wunused-variable]
