@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int main((int argc, char *argv[]){
+int main(int argc, char *argv[]){
 
     int count = 0;// the number of instances
     //argv[1] search how many processes whose name is given are running on the system where your program has been involved
@@ -51,16 +51,20 @@ int main((int argc, char *argv[]){
         //for DUP2
         //output
         dup2(fd[1],1);
+        //dup2(fd[WR],1); //stdout --> child's pipe write 
         
         //close file descriptors
         close(fd[0]);
+        //close (fd[RD]); //close child's read
         close(fd[1]);
+        //close (fd[WR]); //close child's write
+        //may not need to do this
 
         //where wc
         //C:\Program Files\Git\usr\bin\wc.exe
-        execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
+        //execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
         //execlp("usr\bin\wc","wc","-l",NULL);
-        //execlp("wc","wc","-l",NULL);
+        execlp("wc","wc","-l",NULL);
         
         //Error state for execlp
         //perror("bad exec ws");
@@ -82,18 +86,17 @@ int main((int argc, char *argv[]){
         exit(EXIT_FAILURE);
         //perror("2nd fork error");        
     }
-    //Usage: grep [OPTION]... PATTERN [FILE]...
-    //Search for PATTERN in each FILE or standard input.
-    //PATTERN is, by default, a basic regular expression (BRE).
-    //Example: grep -i 'hello world' menu.h main.c
+
 
     else if(pid == 0){
         //fd --> grep --> fd2
         //input from first pipe
         dup2(fd[0],0);
+        //dup2(fd[RD],0); //Reading input from first pipe
 
         //output to fd2
         dup2(fd2[1],1);
+        //dup2(fd[WR],1); //Outputting to second pipe
 
         //close all fds
         close(fd[0]);
@@ -102,16 +105,16 @@ int main((int argc, char *argv[]){
         close(fd2[1]);
 
         //May need to adjust
-        execlp("\Program Files\Git\usr\bin\grep","grep", argv[1],NULL);
+        //execlp("\Program Files\Git\usr\bin\grep","grep", argv[1],NULL);
         //execlp("usr\bin\grep","grep", argv[1],NULL);
-        //execlp("grep","grep", argv[1],NULL);
+        execlp("grep","grep", argv[1],NULL);
         
         //Error state for execlp
         //perror("bad exec grep");
         //_exit(1);
     }
 
-    //closing unused fds
+    //closing unused first pipe
     close(fd[0]);
     close(fd[1]);
 
@@ -126,15 +129,16 @@ int main((int argc, char *argv[]){
     else if(pid == 0){
         //input from secondary pipe
         dup2(fd2[0],0);
+        //dup2(fd2[RD],0); //great grandchild receiving input from 2nd pipe
 
         //close fds
         close(fd2[0]);
         close(fd2[1]);
         
         //execute process status of all "ps -a"
-        execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
+        //execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
         //execlp("usr\bin\ps","ps","-a",NULL);
-        //execlp("bin\ps","ps","-a",NULL);
+        execlp("ps","ps","-a",NULL);
         
         //Error state for execlp
         //perror("bad exec ps");
@@ -153,11 +157,42 @@ int main((int argc, char *argv[]){
         printf("Child Complete");
         exit(EXIT_SUCCESS);
     }
+    return 0;   
 }
 
 
 /*
+nguyew2@uw1-320-13:~$ g++ -std=c++14 -g -Wall -Wextra processes.cpp -o proc
+processes.cpp: In function ‘int main(int, char**)’:
+processes.cpp:12:9: warning: unused variable ‘count’ [-Wunused-variable]
+     int count = 0;// the number of instances
+         ^
+processes.cpp: At global scope:
+processes.cpp:10:14: warning: unused parameter ‘argc’ [-Wunused-parameter]
+ int main(int argc, char *argv[]){
+              ^
+nguyew2@uw1-320-13:~$ ps -a
+  PID TTY          TIME CMD
+18455 pts/8    00:00:00 ps
+nguyew2@uw1-320-13:~$ ./proc '18455'
+  PID TTY          TIME CMD
+18456 pts/8    00:00:00 proc
+18457 pts/8    00:00:00 proc
+18458 pts/8    00:00:00 grep
+18459 pts/8    00:00:00 ps
+Child Completenguyew2@uw1-320-13:~$ wc: 'standard input': Input/output error
 
+
+
+
+> script output.txt
+> g++ -std=c++14 -g -Wall -Wextra hello.cpp -o hello
+> ./hello
+> valgrind ./hello
+    //Usage: grep [OPTION]... PATTERN [FILE]...
+    //Search for PATTERN in each FILE or standard input.
+    //PATTERN is, by default, a basic regular expression (BRE).
+    //Example: grep -i 'hello world' menu.h main.c
 test code
 Need to find a process name? 
 grep format is grep 'PATTERN' <file>
