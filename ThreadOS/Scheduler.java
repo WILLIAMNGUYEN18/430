@@ -93,7 +93,7 @@ public class Scheduler extends Thread
 
     // A modified addThread of p161 example
     public TCB addThread( Thread t ) {
-	t.setPriority( 2 );
+	//t.setPriority( 2 );
 	TCB parentTcb = getMyTcb( ); // get my TCB and find my TID
 	int pid = ( parentTcb != null ) ? parentTcb.getTid( ) : -1;
 	int tid = getNewTid( ); // get a new TID
@@ -124,7 +124,7 @@ public class Scheduler extends Thread
     public void run( ) {
 	Thread current = null;
 
-	this.setPriority( 6 );
+	//this.setPriority( 6 );
 	
 	while ( true ) {
 	    try {
@@ -140,12 +140,14 @@ public class Scheduler extends Thread
 		current = currentTCB.getThread( );
 		if ( current != null ) {
 		    if ( current.isAlive( ) )
-			current.setPriority( 4 );
+		    	current.resume();
+		    	//current.setPriority( 4 );
 		    else {
 			// Spawn must be controlled by Scheduler
 			// Scheduler must start a new thread
 			current.start( ); 
-			current.setPriority( 4 );
+			//current.setPriority( 4 );
+		    
 		    }
 		}
 		
@@ -154,7 +156,7 @@ public class Scheduler extends Thread
 
 		synchronized ( queue ) {
 		    if ( current != null && current.isAlive( ) )
-			current.setPriority( 2 );
+			//current.setPriority( 2 );
 		    queue.remove( currentTCB ); // rotate this TCB to the end
 		    queue.add( currentTCB );
 		}
@@ -162,3 +164,18 @@ public class Scheduler extends Thread
 	}
     }
 }
+
+/*
+ * 
+/*
+ * Next, modify this ThreadOS' Scheduler.java code using suspend( ) and resume( ). The modification will be:
+2. to remove setPriority(6) (line 127) from the run( )method,
+3. to replace current.setPriority(4) (line 143) with current.resume( ),
+4. to remove current.setPriority(4) (line 148) from the run( ) method, and finally
+5. to repalce current.setPriority(2) (line 157) with current.suspend( ).
+Compile your Scheduler.java with javac, and thereafter test with Test2b.java if your Scheduler has implemented a rigid
+round-robin scheduling algorithm. If your Scheduler is working correctly, each TestThread2b thread should print out the
+same message 10 times consecutively.
+ * */
+ * 
+ */
