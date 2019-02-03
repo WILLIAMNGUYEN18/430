@@ -1,9 +1,277 @@
+
+#include <stdlib.h>     // for exit
+#include <stdio.h>      // for perror
+#include <unistd.h>     // for fork, pipe
+#include <sys/wait.h>   // for wait
+#include <iostream>     // for cerr, cout
+
+using namespace std;
+
+int main(int argc, char *argv[]){
+
+    //argv[1] search how many processes whose name is given are running on the system where your program has been involved
+
+    //create root process?
+    //create a child process
+    //redirect pipes
+    // fork another process 
+    printf("Flag 0");
+    fflush(stdout);
+    enum {RD, WR}; // pipe fd index RD=0, WR=1
+    int fd[2], fd2[2], filedescriptor[2];
+    
+    //char buff[100];
+
+    //int pid; // process ID
+    pid_t pid;
+    //pid = p fork();
+
+
+    if(pipe(filedescriptor) < 0){
+        fprintf(stderr, "Pipe Failed");
+        exit(EXIT_FAILURE);
+    }
+    //pid_t pid;
+    //((pid = fork()) <0)
+    //create pipe
+    if(pipe(fd) < 0){
+        fprintf(stderr, "Pipe Failed");
+        exit(EXIT_FAILURE);
+        //perror("pipe error");
+    }
+    printf("pid = %ld\n", (long)pid);
+    //first fork (parent to child for WC)
+    pid = fork();//storing pid
+    printf("pid = %ld\n", (long)pid);
+    
+    printf("Flag 0.1");
+    fflush(stdout);
+    if (pid < 0) { // error occurred
+        fprintf(stderr, "Fork Failed");
+        exit(EXIT_FAILURE);
+        //perror("fork error");
+    }
+
+    // ---------- CHILD SECTIONS -----------   
+    else if ((long)pid == 0) {
+        printf("Flag 1");
+        fflush(stdout);
+        //sleep may or may not be necessary
+        sleep(2);
+
+
+        /*
+        //for DUP2
+        //output
+        dup2(fd[1],1);
+        //dup2(fd[WR],1); //stdout --> child's pipe write 
+        
+        //close file descriptors
+        close(fd[0]);
+        //close (fd[RD]); //close child's read
+        close(fd[1]);
+        //close (fd[WR]); //close child's write
+        //may not need to do this
+        */
+
+        dup2(fd[0], 0); //opening read (reading from pipe)
+        dup2(fd[1], STDOUT_FILENO);
+        //close(fd[1]); //closing write (not writing to pipe)
+        //close(fd[0]);
+        
+        //where wc
+        //C:\Program Files\Git\usr\bin\wc.exe
+        //execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
+        //execlp("usr\bin\wc","wc","-l",NULL);
+        
+        
+        execlp("wc","wc","-l",NULL);
+        wait(NULL);
+        
+        //Error state for execlp
+        //perror("bad exec ws");
+        //_exit(1);
+    }
+
+    //Creating secondary pipe and checking for failure
+    if(pipe(fd2) < 0){
+        fprintf(stderr, "Second Pipe Failed");
+        exit(EXIT_FAILURE);
+        //perror("2nd pipe error");
+    }
+
+    //2nd fork (child to grandchild) for grep
+    pid = fork();
+    //fail case for 2nd fork
+    if(pid < 0){
+        fprintf(stderr, "Second Fork Failed");
+        exit(EXIT_FAILURE);
+        //perror("2nd fork error");        
+    }
+
+
+    else if(pid == 0){
+        printf("Flag 2");
+        fflush(stdout);
+
+        
+        /*
+        //input from first pipe
+        dup2(fd[0],0);
+        //dup2(fd[RD],0); //Reading input from first pipe
+
+        //output to fd2
+        dup2(fd2[1],1);
+        //dup2(fd[WR],1); //Outputting to second pipe
+
+        //close all fds
+        close(fd[0]);
+        close(fd[1]);
+        close(fd2[0]);
+        close(fd2[1]);
+        */
+        dup2(fd[1],1);//writing to first pipe
+        dup2(fd2[0],0); //reading from 2nd pipe
+        
+        //close all fds
+        close(fd[0]);
+        close(fd[1]);
+        close(fd2[0]);
+        close(fd2[1]);
+
+        //May need to adjust
+        //execlp("\Program Files\Git\usr\bin\grep","grep", argv[1],NULL);
+        //execlp("usr\bin\grep","grep", argv[1],NULL);
+        execlp("grep","grep", argv[1],NULL);
+        wait(NULL);
+        
+        //Error state for execlp
+        //perror("bad exec grep");
+        //_exit(1);
+    }
+
+    //closing unused first pipe
+    close(fd[0]);
+    close(fd[1]);
+
+    //3rd fork (grandchild to great grandchild) ps -a
+    pid = fork();
+    if(pid < 0){
+        fprintf(stderr, "Third Fork Failed");
+        exit(EXIT_FAILURE);
+        //perror("3rd fork error");
+    }
+
+    else if(pid == 0){
+        printf("Flag 3");
+        fflush(stdout);
+
+        /*
+        //input from secondary pipe
+        dup2(fd2[0],0);
+        //dup2(fd2[RD],0); //great grandchild receiving input from 2nd pipe
+        */
+        dup2(fd2[1],1); //write to 2nd pipe
+        //close fds
+        close(fd2[0]);
+        close(fd2[1]);
+        
+        //execute process status of all "ps -a"
+        //execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
+        //execlp("usr\bin\ps","ps","-a",NULL);
+        execlp("ps","ps","-a",NULL);
+        wait(NULL);
+        
+        //Error state for execlp
+        //perror("bad exec ps");
+        //_exit(1);
+
+    }
+
+    // execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
+    // execlp("\Program Files\Git\usr\bin\grep","grep", argv[1],NULL);
+
+    // ---------- PARENT SECTION ----------
+    else {
+        // parent will wait for the child to complete
+        wait(NULL);
+        sleep(5);
+        printf("Child Complete");
+        exit(EXIT_SUCCESS);
+    }
+    return 0;   
+}
+
+
 /*
+int n;
+
+char buf[100];
+
+
+ processes tty 
+
+                 ps -A | grep tty | wc -l 
+
+  
+
+                 processes Sys 
+
+                 ps -A | grep Sys | wc -l 
+
+  
+
+                 processes user 
+
+                 ps -A | grep user | wc - l
+
+    Need to figure out Piping structure, draw it.
+nguyew2@uw1-320-13:~$ g++ -std=c++14 -g -Wall -Wextra processes.cpp -o proc
+processes.cpp: In function ‘int main(int, char**)’:
+processes.cpp:12:9: warning: unused variable ‘count’ [-Wunused-variable]
+     int count = 0;// the number of instances
+         ^
+processes.cpp: At global scope:
+processes.cpp:10:14: warning: unused parameter ‘argc’ [-Wunused-parameter]
+ int main(int argc, char *argv[]){
+              ^
+nguyew2@uw1-320-13:~$ ps -a
+  PID TTY          TIME CMD
+18455 pts/8    00:00:00 ps
+nguyew2@uw1-320-13:~$ ./proc '18455'
+  PID TTY          TIME CMD
+18456 pts/8    00:00:00 proc
+18457 pts/8    00:00:00 proc
+18458 pts/8    00:00:00 grep
+18459 pts/8    00:00:00 ps
+Child Completenguyew2@uw1-320-13:~$ wc: 'standard input': Input/output error
+
+
+
+
+> script output.txt
+> g++ -std=c++14 -g -Wall -Wextra hello.cpp -o hello
+> ./hello
+> valgrind ./hello
+    //Usage: grep [OPTION]... PATTERN [FILE]...
+    //Search for PATTERN in each FILE or standard input.
+    //PATTERN is, by default, a basic regular expression (BRE).
+    //Example: grep -i 'hello world' menu.h main.c
+test code
+Need to find a process name? 
+grep format is grep 'PATTERN' <file>
+argv[1] == 'PATTERN' only?, also fed <file> from ps- a?
+
 Code a C++ program, named processes.cpp that receives one argument, 
 (i.e., argv[1]) upon its invocation and searches how many processes 
 whose name is given in argv[1] are running on the system where your program has been invoked. 
 To be specific, your program should demonstrate the same behavior as: 
 $ ps -A | grep argv[1] | wc - l 
+
+
+//for DUP    
+//close(1);dup(f1[1]); == dup2(f1[1], 1);
+        
 
 
 our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
@@ -54,14 +322,6 @@ int close( int fd );
 
 */
 
-#include <stdlib.h>     // for exit
-#include <stdio.h>      // for perror
-#include <unistd.h>     // for fork, pipe
-#include <sys/wait.h>   // for wait
-#include <iostream>     // for cerr, cout
-
-using namespace std;
-
 /*
 our parent process spawns a child that spawns a grand-child that spawns a great-grand-child. Each process should execute a different command as follows: 
 
@@ -74,91 +334,3 @@ Grand-child grep argv[1]    stdin redirected from a great-grand-child's     stdo
 Great-grand-child ps -A     stdin no change                                 stdout redirected to a grand-child's
 */
 //(int argc, char *argv[]) to receive arguments
-int main((int argc, char *argv[]){
-
-    int count = 0;// the number of instances
-    //argv[1] search how many processes whose name is given are running on the system where your program has been involved
-
-    //create root process?
-    //create a child process
-    //redirect pipes
-    // fork another process 
-
-    enum {RD, WR}; // pipe fd index RD=0, WR=1
-    int fd[2], fd2[2];
-    
-    //char buff[100];
-
-    int pid; // process ID
-    //pid_t p;
-    //pid = p fork();
-
-    if(pipe(fd) < 0){
-        fprintf(stderr, "Pipe Failed");
-        exit(EXIT_FAILURE);
-    }
-    pid = fork();
-
-    if (pid < 0) { // error occurred
-        fprintf(stderr, "Fork Failed");
-        exit(EXIT_FAILURE);
-    }
-
-    // ---------- CHILD SECTION -----------   
-    else if (pid == 0) {
-        sleep(2);
-        
-        //close(1);dup(f1[1]); == dup2(f1[1], 1);
-
-        dup2(fd[1],1)
-        
-
-        //different exec
-        
-        //where wc
-        //C:\Program Files\Git\usr\bin\wc.exe
-        execlp("\Program Files\Git\usr\bin\wc","wc","-l",NULL);
-    }
-    // execlp("\Program Files\Git\usr\bin\ps","ps","-a",NULL);
-    // execlp("\Program Files\Git\usr\bin\grep","grep","-l",NULL);
-
-    //need to do multiple children sections?
-    // ---------- PARENT SECTION ----------
-    else {
-        // parent will wait for the child to complete
-        wait(NULL);
-        sleep(5);
-        printf("Child Complete");
-        exit(EXIT_SUCCESS);
-    }
-
-
-    exit(EXIT_SUCCESS);
-}
-
-/*
-   if( pipe(fd) < 0 ) // 1: pipe created
-      perror("pipe error");
-   else if ((pid = fork()) < 0) // 2: child forked
-      perror("fork error");
-   else if (pid == 0) {
-      // ---------- CHILD SECTION ----------
-      close(fd[WR]);// 4: child's fd[1] closed
-      dup2(fd[RD], 0); // stdin(0) --> childs pipe read 
-
-      char buf[256];
-      n = read(fd[RD], buf, 256); // use this raw read!
-      // cin >> buf; <-- *caution with cin and white space!
-      cout << buf;      // write to stdout
-      cout << "Child Done!" << endl;
-   }
-   else {
-      // ---------- PARENT SECTION -----------
-      close(fd[RD]); // 3: close parent's read end of pipe
-      dup2(fd[WR], 2); // stderr(2) --> parent's pipe write 
-
-      cerr <<  "Hello my child" << endl;
-      wait( NULL );
-      cout << "Parent Done!" << endl;
-   }
-*/

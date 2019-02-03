@@ -1,0 +1,12 @@
+Script started on Tue 22 Jan 2019 06:37:35 PM PST
+]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ Child Completenguyew2@uw1-320-13:~$ wc: 'standard input': Input/output eerror[A]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ [45P18459 pts/8    00:00:00 ps
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[CChild Completenguyew2@uw1-320-13:~$ wc: 'standard input': Input/output eerror[A]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ [K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cps -A |gre[K[K[K grep user | wc -l
+0
+]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ ps -a [K[KA \[K| grep u[KSys | wc -l
+0
+]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ ps _[K-A | grep tty [K [K | wc -l
+2
+]0;nguyew2@uw1-320-13: ~nguyew2@uw1-320-13:~$ exit
+
+Script done on Tue 22 Jan 2019 06:38:34 PM PST
