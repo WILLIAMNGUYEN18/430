@@ -157,6 +157,7 @@ public class Scheduler extends Thread
 		synchronized ( queue ) {
 		    if ( current != null && current.isAlive( ) )
 			//current.setPriority( 2 );
+		    current.suspend();
 		    queue.remove( currentTCB ); // rotate this TCB to the end
 		    queue.add( currentTCB );
 		}
@@ -164,9 +165,7 @@ public class Scheduler extends Thread
 	}
     }
 }
-
-/*
- * 
+ 
 /*
  * Next, modify this ThreadOS' Scheduler.java code using suspend( ) and resume( ). The modification will be:
 2. to remove setPriority(6) (line 127) from the run( )method,
@@ -177,5 +176,3 @@ Compile your Scheduler.java with javac, and thereafter test with Test2b.java if 
 round-robin scheduling algorithm. If your Scheduler is working correctly, each TestThread2b thread should print out the
 same message 10 times consecutively.
  * */
- * 
- */
