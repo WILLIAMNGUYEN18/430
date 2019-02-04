@@ -97,7 +97,8 @@ public class Scheduler extends Thread
 	queue3 = new Vector();	
 	initTid( maxThreads );
     }
-
+    
+    
     private void schedulerSleep( ) {
 	try {
 	    Thread.sleep( timeSlice );
@@ -143,15 +144,17 @@ public class Scheduler extends Thread
 	while ( true ) {
 	    try {
 		// get the next TCB and its thread
+	    //if queue 1 is empty, move on
 		if ( queue1.size( ) == 0 )
-		    continue;
+		    continue;// potentially need to check for further queues?
 		TCB currentTCB = (TCB)queue1.firstElement( );
-		if ( currentTCB.getTerminated( ) == true ) {
+		if ( currentTCB.getTerminated( ) == true ) {//if finished in queue 1
 		    queue1.remove( currentTCB );
 		    returnTid( currentTCB.getTid( ) );
 		    continue;
 		}
 		current = currentTCB.getThread( );
+		//if current thread (current TCB) is not null and active, resume, if inactive, start.
 		if ( current != null ) {
 		    if ( current.isAlive( ) )
 		    	current.resume();
@@ -165,15 +168,34 @@ public class Scheduler extends Thread
 		    }
 		}
 		
+		//thread is put to sleep
 		schedulerSleep( );
 		// System.out.println("* * * Context Switch * * * ");
-
+		
+		
+		//find out Synchronized
+		//https://stackoverflow.com/questions/1085709/what-does-synchronized-mean
+		/*
+		 * synchronized methods enable a simple strategy for preventing thread 
+		 * interference and memory consistency errors: if an object is visible to 
+		 * more than one thread, all reads or writes to that object's variables are 
+		 * done through synchronized methods.
+		 * 
+		 * 
+		 * */
 		synchronized ( queue1 ) {
+			//
 		    if ( current != null && current.isAlive( ) )
 			//current.setPriority( 2 );
 		    current.suspend();
 		    queue1.remove( currentTCB ); // rotate this TCB to the end
 		    queue1.add( currentTCB );
+		    //Should rotate to end of next queue (queue2)
+		    //should then activate in next queue
+		    //should then synchronize for that queue
+		    //Should rotate to end of third queue (queue3)
+		    //should then activate in 3rd queue
+		    //should then synchronize in 3rd queue.
 		}
 	    } catch ( NullPointerException e3 ) { };
 	}
@@ -182,24 +204,48 @@ public class Scheduler extends Thread
  
 /*
  * 
+ * 
+Need to figure out how to run for quantum amount of time?
+add parameter for scheduleSleep to change timeSlice
+ 
 1. It has three queues: 0, 1 and 2
+Initialize all 3 queues
+
 2. A new thread's TCB is always enqueued into queue 0
+addThread the same? (always enqueue to queue0)
+
 3. Your scheduler first executes all threads in queue 0. The queue 0's time quantum is timeslice/2, i.e., half of the one
 used in Part 1 Round-robin scheduler
+//on run, execute all of queue 0 (quantum = timeslice/2?
+
 4. If a thread in the queue 0 does not complete its execution for queue 0's time slice, (i.e., timeSlice / 2 ), the
 scheduler moves the corresponding TCB to queue 1.
+Need to check if finished. (If finished, remove, return, continue, if not,)
+
+
 5. If queue 0 is empty, it will execute threads in queue 1. The queue 1's time quantum is the same as the one in Part
 1's round-robin scheduler, (i.e., timeSlice). However, in order to react new threads in queue 0, your scheduler
 should execute a thread in queue 1 for timeSlice / 2 and then check if queue 0 has new TCBs. If so, it will execute
 all threads in queue 0 first, and thereafter resume the execution of the same thread in queue 1 for another
 timeSlice / 2.
+//Need to recheck queue 0 after executing in queue 1 for timeSlice/2
+need to keep track of how many timeslices have been executed.
+
+
 6. If a thread in queue 1 does not complete its execution for queue 1's time quantum, (i.e., timeSlice ), the scheduler
 then moves the TCB to queue 2.
+//move to third queue
+
+
 7. If both queue 0 and queue 1 is empty, it can execute threads in queue 2. The queue 2's time quantum is a double
 of the one in Part 1's round-robin scheduler, (i.e., timeSlice * 2). However, in order to react threads with higher
 priority in queue 0 and 1, your scheduler should execute a thread in queue 2 for timeSlice / 2 and then check if
 queue 0 and 1 have new TCBs. The rest of the behavior is the same as that for queue 1.
+//Need to recheck queue 0 after executing in queue 3 for timeSlice/2
+need to keep track of how many timeslices have been executed.
+
 8. If a thread in queue 2 does not complete its execution for queue 2's time slice, (i.e., timeSlice * 2 ), the scheduler
 puts it back to the tail of queue 2. (This is different from the textbook example that executes threads in queue 2
 with FCFS, see figure 1 below.)
+just requeue if unfinished
  * */
