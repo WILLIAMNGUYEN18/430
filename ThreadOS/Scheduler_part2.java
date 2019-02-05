@@ -281,21 +281,47 @@ public class Scheduler extends Thread
 							current.start();
 						}
 					}
+					
+					//Don't need to necessarily synch, need to check if finished
+					//if so, continue?
+					//how do we check current thread completion?
 					schedulerSleep( );
 					checkQOne();
 					checkQTwo();
+					//isalive vs tcb.getTerminated()?
+					if(currentTCB.getTerminated() == true){
+						queue3.remove(currentTCB);
+						returnTid(currentTCB.getTid());
+						continue;
+					}
+					
 					
 					schedulerSleep( );
 					checkQOne();
 					checkQTwo();
+					if(currentTCB.getTerminated() == true){
+						queue3.remove(currentTCB);
+						returnTid(currentTCB.getTid());
+						continue;
+					}
 					
 					schedulerSleep( );
 					checkQOne();
 					checkQTwo();
+					if(currentTCB.getTerminated() == true){
+						queue3.remove(currentTCB);
+						returnTid(currentTCB.getTid());
+						continue;
+					}
 					
 					schedulerSleep( );
 					checkQOne();
 					checkQTwo();
+					if(currentTCB.getTerminated() == true){
+						queue3.remove(currentTCB);
+						returnTid(currentTCB.getTid());
+						continue;
+					}
 					synchronized ( queue3 ) {
 						//
 					    if ( current != null && current.isAlive( ) )
@@ -329,12 +355,25 @@ public class Scheduler extends Thread
 					}
 				}
 				schedulerSleep( );
+				if(currentTCB.getTerminated() == true){
+					queue2.remove(currentTCB);
+					returnTid(currentTCB.getTid());
+					continue;
+				}
 				checkQOne();
+				//if ( current != null && !current.isAlive( ) ){
+				//}
+				
 				//need a way to repeat check for queue 1
 				//for each sleep that allows CPU performance
 				//can build a method for checking
 				schedulerSleep( );
 				checkQOne();
+				if(currentTCB.getTerminated() == true){
+					queue2.remove(currentTCB);
+					returnTid(currentTCB.getTid());
+					continue;
+				}
 				
 				//do an int check (equiv of bool) for q2 or q3
 				
