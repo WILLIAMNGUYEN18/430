@@ -55,12 +55,26 @@ public class Scheduler extends Thread
     // Retrieve the current thread's TCB from the queue
     public TCB getMyTcb( ) {
 	Thread myThread = Thread.currentThread( ); // Get my thread object
-	synchronized( queue ) {
-	    for ( int i = 0; i < queue.size( ); i++ ) {
-		TCB tcb = ( TCB )queue.elementAt( i );
-		Thread thread = tcb.getThread( );
-		if ( thread == myThread ) // if this is my TCB, return it
-		    return tcb;
+	synchronized( queue1 ) {
+	    for ( int i = 0; i < queue1.size( ); i++ ) {
+	    	TCB tcb = ( TCB )queue1.elementAt( i );
+	    	Thread thread = tcb.getThread( );
+	    	if ( thread == myThread ) // if this is my TCB, return it
+	    		return tcb;
+	    }
+	    
+	    for(int i = 0; i < queue2.size(); i++){
+	    	TCB tcb = ( TCB )queue2.elementAt( i );
+	    	Thread thread = tcb.getThread( );
+	    	if ( thread == myThread ) // if this is my TCB, return it
+	    		return tcb;
+	    }
+	    
+	    for(int i = 0; i < queue3.size(); i++){
+	    	TCB tcb = ( TCB )queue3.elementAt( i );
+	    	Thread thread = tcb.getThread( );
+	    	if ( thread == myThread ) // if this is my TCB, return it
+	    		return tcb;
 	    }
 	}
 	return null;
@@ -157,13 +171,13 @@ public class Scheduler extends Thread
     	Thread current = null;
     	try{
     		if ( queue2.size( ) == 0 ){
-    			continue;
+    			return;
     		}
     		TCB currentTCB = (TCB)queue2.firstElement( );
 			if ( currentTCB.getTerminated( ) == true ) {//if finished in queue 1
 			    queue2.remove( currentTCB );
 			    returnTid( currentTCB.getTid( ) );
-			    continue;
+			    return;
 			}
 			current = currentTCB.getThread( );
 			//if current thread (current TCB) is not null and active, resume, if inactive, start.
@@ -183,6 +197,26 @@ public class Scheduler extends Thread
 			
 			//thread is put to sleep
 			schedulerSleep( );
+			checkQOne();
+			if(currentTCB.getTerminated() == true){
+				queue2.remove(currentTCB);
+				returnTid(currentTCB.getTid());
+				return;
+			}
+			//if ( current != null && !current.isAlive( ) ){
+			//}
+			
+			//need a way to repeat check for queue 1
+			//for each sleep that allows CPU performance
+			//can build a method for checking
+			schedulerSleep( );
+			checkQOne();
+			if(currentTCB.getTerminated() == true){
+				queue2.remove(currentTCB);
+				returnTid(currentTCB.getTid());
+				return;
+			}
+			
 	
 			synchronized ( queue2 ) {
 				
@@ -202,13 +236,13 @@ public class Scheduler extends Thread
     	Thread current = null;
     	try{
     		if ( queue1.size( ) == 0 ){
-    			continue;
+    			return;
     		}
     		TCB currentTCB = (TCB)queue1.firstElement( );
 			if ( currentTCB.getTerminated( ) == true ) {//if finished in queue 1
 			    queue1.remove( currentTCB );
 			    returnTid( currentTCB.getTid( ) );
-			    continue;
+			    return;
 			}
 			current = currentTCB.getThread( );
 			//if current thread (current TCB) is not null and active, resume, if inactive, start.
@@ -286,7 +320,6 @@ public class Scheduler extends Thread
 					//if so, continue?
 					//how do we check current thread completion?
 					schedulerSleep( );
-					checkQOne();
 					checkQTwo();
 					//isalive vs tcb.getTerminated()?
 					if(currentTCB.getTerminated() == true){
@@ -297,7 +330,7 @@ public class Scheduler extends Thread
 					
 					
 					schedulerSleep( );
-					checkQOne();
+					//checkQOne();
 					checkQTwo();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
@@ -306,7 +339,7 @@ public class Scheduler extends Thread
 					}
 					
 					schedulerSleep( );
-					checkQOne();
+					//checkQOne();
 					checkQTwo();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
@@ -315,7 +348,8 @@ public class Scheduler extends Thread
 					}
 					
 					schedulerSleep( );
-					checkQOne();
+					//checking queue 2 recursively checks queue 1, don't need both.
+					//checkQOne();
 					checkQTwo();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
