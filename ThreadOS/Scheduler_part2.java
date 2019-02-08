@@ -197,7 +197,6 @@ public class Scheduler extends Thread
 			
 			//thread is put to sleep
 			schedulerSleep( );
-			checkQOne();
 			if(currentTCB.getTerminated() == true){
 				queue2.remove(currentTCB);
 				returnTid(currentTCB.getTid());
@@ -210,7 +209,6 @@ public class Scheduler extends Thread
 			//for each sleep that allows CPU performance
 			//can build a method for checking
 			schedulerSleep( );
-			checkQOne();
 			if(currentTCB.getTerminated() == true){
 				queue2.remove(currentTCB);
 				returnTid(currentTCB.getTid());
@@ -321,6 +319,7 @@ public class Scheduler extends Thread
 					//how do we check current thread completion?
 					schedulerSleep( );
 					checkQTwo();
+					checkQOne();
 					//isalive vs tcb.getTerminated()?
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
@@ -332,6 +331,7 @@ public class Scheduler extends Thread
 					schedulerSleep( );
 					//checkQOne();
 					checkQTwo();
+					checkQOne();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
 						returnTid(currentTCB.getTid());
@@ -341,6 +341,7 @@ public class Scheduler extends Thread
 					schedulerSleep( );
 					//checkQOne();
 					checkQTwo();
+					checkQOne();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
 						returnTid(currentTCB.getTid());
@@ -351,6 +352,7 @@ public class Scheduler extends Thread
 					//checking queue 2 recursively checks queue 1, don't need both.
 					//checkQOne();
 					checkQTwo();
+					checkQOne();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
 						returnTid(currentTCB.getTid());
