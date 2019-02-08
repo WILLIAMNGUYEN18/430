@@ -217,7 +217,7 @@ public class Scheduler extends Thread
 				}
 				
 		
-				synchronized ( this ) {
+				synchronized ( queue2 ) {
 					
 				    if ( current != null && current.isAlive( ) )
 					//current.setPriority( 2 );
@@ -264,7 +264,7 @@ public class Scheduler extends Thread
 				//thread is put to sleep
 				schedulerSleep( );
 		
-				synchronized ( this ) {
+				synchronized ( queue1 ) {
 					//
 				    if ( current != null && current.isAlive( ) )
 					//current.setPriority( 2 );
@@ -362,7 +362,7 @@ public class Scheduler extends Thread
 						returnTid(currentTCB.getTid());
 						continue;
 					}
-					synchronized ( this ) {
+					synchronized ( queue3 ) {
 						//
 					    if ( current != null && current.isAlive( ) )
 						//current.setPriority( 2 );
@@ -418,7 +418,7 @@ public class Scheduler extends Thread
 				//do an int check (equiv of bool) for q2 or q3
 				
 				//need to only have one synch call due to risk of deadlock
-				synchronized ( this ) {
+				synchronized ( queue2 ) {
 					//
 				    if ( current != null && current.isAlive( ) )
 					//current.setPriority( 2 );
@@ -459,7 +459,7 @@ public class Scheduler extends Thread
 			//thread is put to sleep
 			schedulerSleep( );
 	
-			synchronized ( this ) {
+			synchronized ( queue1 ) {
 				//
 			    if ( current != null && current.isAlive( ) )
 				//current.setPriority( 2 );
