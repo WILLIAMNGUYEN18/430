@@ -102,6 +102,11 @@ public class Kernel
 		 * */
 		//SyncQueue waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    case WAIT:
+	    // In Unix/Linux, the wait( ) system call is based on this idea. 
+	    	//It does not receive any arguments, (thus no PID to wait on), 
+	    	//but simply waits for one of the child processes and 
+	    	//returns a PID that has woken up the calling process.
+	    	
 		// get the current thread id
 		// let the current thread sleep in waitQueue under the 
 		// condition = this thread id
