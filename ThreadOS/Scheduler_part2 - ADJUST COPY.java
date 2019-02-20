@@ -149,14 +149,24 @@ public class Scheduler extends Thread
 	} catch ( InterruptedException e ) { }
     }
     
-
- 
-    
+    // A modified run of p161
     /*
-     * Private method utilized during the 3rd queue in which the 2nd queue
-     * is checked if empty. If not, it will run through until queue 2 is clear.
-     * It parallels the structure of run
+     * This is the heart of Scheduler. 
+     * The difference from the lecture slide includes: 
+     * (1) retrieving a next available TCB rather than a thread from the active thread list, 
+     * (2) deleting it if it has been marked as "terminated", and 
+     * (3) starting the thread if it has not yet been started. 
+     * Other than this difference, the Scheduler repeats retrieving a next available TCB from the list, 
+     * raising up the corresponding thread's priority, 
+     * yielding CPU to this thread with sleep( ), and lowering the thread's priority. 
+     * 
      * */
+    
+    //isAlive() https://www.studytonight.com/java/joining-a-thread.php
+    //method returns true if the thread upon which it is called is still running otherwise it returns false.
+    //Need to do a synch after each
+    //
+    
     private void checkQTwo(){
     	Thread current = null;
 	    while(queue2.size() > 0) {
@@ -206,8 +216,9 @@ public class Scheduler extends Thread
 					return;
 				}
 				
-				synchronized ( this ) {
-					//
+		
+				synchronized ( queue2 ) {
+					
 				    if ( current != null && current.isAlive( ) )
 					//current.setPriority( 2 );
 				    //The suspend() method suspends a target thread,  
@@ -221,12 +232,6 @@ public class Scheduler extends Thread
 	    	} catch ( NullPointerException e3 ) { };
 	    }
     }
-    
-    /*
-     * Private method utilized during the 2nd and 3rd queue in which the first queue
-     * is checked if empty. If not, it will run through until queue 1 is clear.
-     * It parallels the structure of run
-     * */
     private void checkQOne(){
     	Thread current = null;
     	while(queue1.size() > 0) {
@@ -256,12 +261,13 @@ public class Scheduler extends Thread
 				    }
 				}
 				
-				//thread is put on CPU activation for set timeslice
+				//thread is put to sleep
 				schedulerSleep( );
 		
-				synchronized ( this ) {
-					
+				synchronized ( queue1 ) {
+					//
 				    if ( current != null && current.isAlive( ) )
+					//current.setPriority( 2 );
 				    //The suspend() method suspends a target thread,  
 				    current.suspend();
 				    queue1.remove( currentTCB ); // rotate this TCB to the end
@@ -276,23 +282,6 @@ public class Scheduler extends Thread
 
 
 
-    /*
-     * Run deals with checking if queues are empty, 
-     * if the TCB is finished, If the thread is active, 
-     * and executing for 500ms, checking for higher queues inbetween multiple instances.
-     * */
-    // A modified run of p161
-    /*
-     * This is the heart of Scheduler. 
-     * The difference from the lecture slide includes: 
-     * (1) retrieving a next available TCB rather than a thread from the active thread list, 
-     * (2) deleting it if it has been marked as "terminated", and 
-     * (3) starting the thread if it has not yet been started. 
-     * Other than this difference, the Scheduler repeats retrieving a next available TCB from the list, 
-     * raising up the corresponding thread's priority, 
-     * yielding CPU to this thread with sleep( ), and lowering the thread's priority. 
-     * 
-     * */
     public void run( ) {
 	Thread current = null;
 
@@ -303,7 +292,6 @@ public class Scheduler extends Thread
 		// get the next TCB and its thread
 	    //if queue 1 is empty, move on
 	    int q = 1;
-	    TCB currentTCB = null;
 		if ( queue1.size( ) == 0 ){
 			q++;//q == 2
 			 //continue;// potentially need to check for further queues?
@@ -313,8 +301,7 @@ public class Scheduler extends Thread
 					continue;
 				}
 				if(q == 3){
-					//if queue 1 & 2 are empty but queue 3 isn't, do this.
-					currentTCB = (TCB)queue3.firstElement();
+					TCB currentTCB = (TCB)queue3.firstElement();
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
 						returnTid(currentTCB.getTid());
@@ -331,10 +318,13 @@ public class Scheduler extends Thread
 						}
 					}
 					
-
+					//Don't need to necessarily synch, need to check if finished
+					//if so, continue?
+					//how do we check current thread completion?
 					schedulerSleep( );
 					checkQTwo();
 					checkQOne();
+					//isalive vs tcb.getTerminated()?
 					if(currentTCB.getTerminated() == true){
 						queue3.remove(currentTCB);
 						returnTid(currentTCB.getTid());
@@ -372,14 +362,23 @@ public class Scheduler extends Thread
 						returnTid(currentTCB.getTid());
 						continue;
 					}
-
+					synchronized ( queue3 ) {
+						//
+					    if ( current != null && current.isAlive( ) )
+						//current.setPriority( 2 );
+					    //The suspend() method suspends a target thread,  
+					    current.suspend();
+					    queue3.remove( currentTCB ); // rotate this TCB to the end
+					    queue3.add(currentTCB);
+					    
+					}
 				}
 				
-				
+				//if queue 1 & 2 are empty but queue 3 isn't, do this.
 			}
 			//if queue 1 is empty and queue 2 isn't, do this
 			if(q == 2){
-				currentTCB = (TCB)queue2.firstElement();
+				TCB currentTCB = (TCB)queue2.firstElement();
 				if(currentTCB.getTerminated() == true){
 					queue2.remove(currentTCB);
 					returnTid(currentTCB.getTid());
@@ -402,7 +401,12 @@ public class Scheduler extends Thread
 					continue;
 				}
 				checkQOne();
-
+				//if ( current != null && !current.isAlive( ) ){
+				//}
+				
+				//need a way to repeat check for queue 1
+				//for each sleep that allows CPU performance
+				//can build a method for checking
 				schedulerSleep( );
 				checkQOne();
 				if(currentTCB.getTerminated() == true){
@@ -410,12 +414,27 @@ public class Scheduler extends Thread
 					returnTid(currentTCB.getTid());
 					continue;
 				}
-
+				
+				//do an int check (equiv of bool) for q2 or q3
+				
+				//need to only have one synch call due to risk of deadlock
+				synchronized ( queue2 ) {
+					//
+				    if ( current != null && current.isAlive( ) )
+					//current.setPriority( 2 );
+				    //The suspend() method suspends a target thread,  
+				    current.suspend();
+				    queue2.remove( currentTCB ); // rotate this TCB to the end
+				    //queue1.add( currentTCB );
+				    queue3.add(currentTCB);
+				    
+				}
 			}
 		}
 		//if queue 1 isn't empty, do this   
+		//need to only do this if 
 		if(q == 1){
-			currentTCB = (TCB)queue1.firstElement( );
+			TCB currentTCB = (TCB)queue1.firstElement( );
 			if ( currentTCB.getTerminated( ) == true ) {//if finished in queue 1
 			    queue1.remove( currentTCB );
 			    returnTid( currentTCB.getTid( ) );
@@ -440,43 +459,93 @@ public class Scheduler extends Thread
 			//thread is put to sleep
 			schedulerSleep( );
 	
-			
-		}
-		synchronized ( this ) {
-			//
-		    if ( current != null && current.isAlive( )  && q == 1)
-		    {
-
-		    //The suspend() method suspends a target thread,  
-		    current.suspend();
-		    queue1.remove( currentTCB ); // rotate this TCB to the end
-		    //queue1.add( currentTCB );
-		    queue2.add(currentTCB);
-		    }
-		    else if ( current != null && current.isAlive( )  && q == 3)
-		    {
-
-		    //The suspend() method suspends a target thread,  
-		    current.suspend();
-		    queue3.remove( currentTCB ); // rotate this TCB to the end
-		    queue3.add(currentTCB);
-		    }
-
-		    else if ( current != null && current.isAlive( )  && q == 2)
-		    {
-
+			synchronized ( queue1 ) {
+				//
+			    if ( current != null && current.isAlive( ) )
+				//current.setPriority( 2 );
 			    //The suspend() method suspends a target thread,  
 			    current.suspend();
-			    queue2.remove( currentTCB ); // rotate this TCB to the end
+			    queue1.remove( currentTCB ); // rotate this TCB to the end
 			    //queue1.add( currentTCB );
-			    queue3.add(currentTCB);
-		    }
-		    
-		    	
+			    queue2.add(currentTCB);
+			    
+			}
 		}
+		
+		//is my synch parameter correct?
+		
+		// System.out.println("* * * Context Switch * * * ");
+		
+		
+		//find out Synchronized
+		//https://stackoverflow.com/questions/1085709/what-does-synchronized-mean
+		//https://www.geeksforgeeks.org/synchronized-in-java/
+		/*
+		 * 
+		 * synchronized methods enable a simple strategy for preventing thread 
+		 * interference and memory consistency errors: if an object is visible to 
+		 * more than one thread, all reads or writes to that object's variables are 
+		 * done through synchronized methods.
+		 * */
+		/*
+		 * synchronized, wait( ) and notify( ) keywords. 
+		 * You will notice that the Scheduler Class of ThreadOS uses the synchronized keywords for the peek method. 
+		 * Don't remove or put additional synchronized keywords in the code, otherwise ThreadOS may deadlock.  
+		 * WILL NEED TO SHARE synch statement somehow?
+		 * */
+		
+		
 		
 	    } catch ( NullPointerException e3 ) { };
 	}
     }
 }
  
+/*
+ * 
+ * 
+Need to figure out how to run for quantum amount of time?
+add parameter for scheduleSleep to change timeSlice
+ 
+1. It has three queues: 0, 1 and 2
+Initialize all 3 queues
+
+2. A new thread's TCB is always enqueued into queue 0
+addThread the same? (always enqueue to queue0)
+
+3. Your scheduler first executes all threads in queue 0. The queue 0's time quantum is timeslice/2, i.e., half of the one
+used in Part 1 Round-robin scheduler
+//on run, execute all of queue 0 (quantum = timeslice/2?
+//find out how to execute for a specific time slice.
+
+4. If a thread in the queue 0 does not complete its execution for queue 0's time slice, (i.e., timeSlice / 2 ), the
+scheduler moves the corresponding TCB to queue 1.
+Need to check if finished. (If finished, remove, return, continue, if not,)
+
+
+5. If queue 0 is empty, it will execute threads in queue 1. The queue 1's time quantum is the same as the one in Part
+1's round-robin scheduler, (i.e., timeSlice). However, in order to react new threads in queue 0, your scheduler
+should execute a thread in queue 1 for timeSlice / 2 and then check if queue 0 has new TCBs. If so, it will execute
+all threads in queue 0 first, and thereafter resume the execution of the same thread in queue 1 for another
+timeSlice / 2.
+//Need to recheck queue 0 after executing in queue 1 for timeSlice/2
+need to keep track of how many timeslices have been executed.
+
+
+6. If a thread in queue 1 does not complete its execution for queue 1's time quantum, (i.e., timeSlice ), the scheduler
+then moves the TCB to queue 2.
+//move to third queue
+
+
+7. If both queue 0 and queue 1 is empty, it can execute threads in queue 2. The queue 2's time quantum is a double
+of the one in Part 1's round-robin scheduler, (i.e., timeSlice * 2). However, in order to react threads with higher
+priority in queue 0 and 1, your scheduler should execute a thread in queue 2 for timeSlice / 2 and then check if
+queue 0 and 1 have new TCBs. The rest of the behavior is the same as that for queue 1.
+//Need to recheck queue 0 after executing in queue 3 for timeSlice/2
+need to keep track of how many timeslices have been executed.
+
+8. If a thread in queue 2 does not complete its execution for queue 2's time slice, (i.e., timeSlice * 2 ), the scheduler
+puts it back to the tail of queue 2. (This is different from the textbook example that executes threads in queue 2
+with FCFS, see figure 1 below.)
+just requeue if unfinished
+ * */

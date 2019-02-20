@@ -494,8 +494,7 @@ public class Scheduler extends Thread
 	}
     }
 }
- //potentially convert synchronize queue 1 to synchronize(this)
-//have cases for different q values at the end of run
+ 
 /*
  * 
  * 
