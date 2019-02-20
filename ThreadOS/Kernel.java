@@ -4,6 +4,9 @@ import java.io.*;
 
 public class Kernel
 {
+	//waitQueue
+	private static SyncQueue waitQueue;
+	
     // Interrupt requests
     public final static int INTERRUPT_SOFTWARE = 1;  // System calls
     public final static int INTERRUPT_DISK     = 2;  // Disk interrupts
@@ -85,6 +88,19 @@ public class Kernel
 		return OK;
 	    case EXEC:
 		return sysExec( ( String[] )args );
+		/*
+		 *  SysLib.join() system call. 
+		 *  We would like the SysLib.join() 
+		 *  system call to follow similar semantics 
+		 *  as the Unix/Linux wait() system call. 
+		 *  SysLib.join( ) will permit the 
+		 *  calling thread to sleep until one 
+		 *  of its child threads terminates by 
+		 *  calling SysLib.exit( ). It should 
+		 *  return the ID of the child thread 
+		 *  that woke up the calling thread.  
+		 * */
+		//SyncQueue waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    case WAIT:
 		// get the current thread id
 		// let the current thread sleep in waitQueue under the 
