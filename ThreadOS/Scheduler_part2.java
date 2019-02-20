@@ -279,7 +279,7 @@ public class Scheduler extends Thread
     /*
      * Run deals with checking if queues are empty, 
      * if the TCB is finished, If the thread is active, 
-     * and executing the 
+     * and executing for 500ms, checking for higher queues inbetween multiple instances.
      * */
     // A modified run of p161
     /*
