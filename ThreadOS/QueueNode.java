@@ -1,3 +1,5 @@
+import java.util.Queue;
+
 
 public class QueueNode {
 	/*
@@ -11,6 +13,7 @@ public class QueueNode {
 	//thread ID is tid, which is an integer
 	private int TID;
 	private Thread T;
+	//private Queue<Object> condQueue;
 	/*
 	 * "waitingQueue calling thread’s ID as an independent waiting condition" 
 	 * condition used by waitQueue to track the thread is equal to the thread's ID 
@@ -19,6 +22,7 @@ public class QueueNode {
 	 * */
 	
 	public QueueNode(){
+		//condQueue = new Queue<Object>(1);
 		this.TID = 0;
 	}
 	

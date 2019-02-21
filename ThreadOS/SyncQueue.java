@@ -54,6 +54,18 @@ public class SyncQueue {
 		return 0;
 		
 	}
+	/*
+	 * 
+synchronized( lockObject )
+{ 
+	while( ! condition )
+	{ 
+		lockObject.wait();
+	}
+	
+	//take the action here;
+}
+	 * */
 	
 	/*
 	 * dequeues and wakes up a thread waiting for a given condition. 
@@ -76,7 +88,7 @@ public class SyncQueue {
 		//checking for thread waiting on given condition
 		for(int i = 0; i < counter; i++) {
 			//if there is a thread for condition
-			if (queue[i] == condition) {
+			if (queue[i].getTID() == condition) {
 				//dequeue, assuming by removing from array and shuffling the array
 				synchronized (queue[i]) {
 				//do I need to remove?
