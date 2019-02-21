@@ -12,7 +12,7 @@ public class QueueNode {
 	
 	//thread ID is tid, which is an integer
 	private int TID;
-	private Thread T;
+	private int condition;
 	//private Queue<Object> condQueue;
 	/*
 	 * "waitingQueue calling thread’s ID as an independent waiting condition" 
@@ -23,18 +23,21 @@ public class QueueNode {
 	
 	public QueueNode(){
 		//condQueue = new Queue<Object>(1);
-		this.TID = 0;
+		this.condition = 0;
 	}
 	
-	public QueueNode(int id){
-		this.TID = id;
+	public QueueNode(int condition){
+		this.condition = condition;
+	}
+	public int getCOND() {
+		return this.condition;
 	}
 	
 	public int getTID(){
 		return this.TID;
 	}
-	public Thread getT(){
-		return this.T;
+	public void setTID(int TID){
+		this.TID = TID;
 	}
 	
 

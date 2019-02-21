@@ -1,10 +1,14 @@
 
+import java.util.*
 public class SyncQueue {
-	private QueueNode[] queue;
-	
+	//private QueueNode[] queue;
+	private Vector<QueueNode> queue;
+	//can be Vector<QueueNode> queue;
+	private int size;
 	
 	private int counter;
 	private boolean using = true;
+	
 	/*
 	 * one QueueNode object per condition supported by the SyncQueue.
 	 * */
@@ -23,12 +27,15 @@ public class SyncQueue {
 	 * a default condition number (of 10) or a condMax number of condition/event types. 
 	 * */
 	public SyncQueue(){
-		queue = new QueueNode[10];
+		size = 10;
+		queue = new Vector<QueueNode>;
 		counter = 0;
 	}
 	
 	public SyncQueue(int condMax){
-		queue = new QueueNode[condMax];
+		//size = condMax;
+		size = condMax;
+		queue = new Vector<QueueNode>;
 		counter = 0;
 	}
 	
@@ -37,12 +44,21 @@ public class SyncQueue {
 	 * and sleeps it until a given condition is satisfied. 
 	 * It returns the ID of a child thread that has woken the calling thread. 
 	 * */
+	//condition is calling thread and PID
 	public int enqueueAndSleep(int condition){
 		//enqueue calling thread?
-		int callingTID = 0;
-		queue[counter] = new QueueNode(callingTID);
+		
+		temp = new QueueNode(condition);
+		
+		queue.add(temp);
+		int ind = queue.indexOf(temp);
 		
 		
+		
+		synchronized(queue.get(ind)){
+			//no need for while?
+			queue.get(ind).wait();
+		}
 		
 		//java monitor is using synchronized
 		//We are trying to create our own ThreadOS monitor?
@@ -78,14 +94,35 @@ synchronized( lockObject )
 	 * */
 	public void dequeueAndWakeup(int condition){
 		
-		int tid = 0;
-		//queue.
-		counter--;
-		
+		dequeueAndWakeup(condition, 0);
 	}
 
 	public void dequeueAndWakeup(int condition, int tid){
 		//checking for thread waiting on given condition
+		//how do I find correct node?
+		//int ind = queue.indexOf(QueueNode(condition));
+		
+		//have to iterate?
+		for(int i = 0; i < size; i++) {
+			if(queue.get(i) != null) {
+				if(queue.get(i).getCOND() == condition) {
+					synchronized(queue.get(i)){
+						QueueNode temp = queue.get(i);
+						temp.setTID(tid);
+						queue.remove(temp);
+						temp.notify();
+						//return directly or change value in queueNode?
+						//or externally, child thread already knows?
+					}
+					break;//only do 1
+				}
+			}
+		}
+
+	}
+	/*
+	 * 
+	 * 
 		for(int i = 0; i < counter; i++) {
 			//if there is a thread for condition
 			if (queue[i].getTID() == condition) {
@@ -107,6 +144,5 @@ synchronized( lockObject )
 			}
 		}
 		counter--;
-	}
-
+	 * */
 }
