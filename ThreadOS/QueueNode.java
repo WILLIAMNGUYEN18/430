@@ -10,6 +10,7 @@ public class QueueNode {
 	
 	//thread ID is tid, which is an integer
 	private int TID;
+	private Thread T;
 	/*
 	 * "waitingQueue calling thread’s ID as an independent waiting condition" 
 	 * condition used by waitQueue to track the thread is equal to the thread's ID 
@@ -27,6 +28,9 @@ public class QueueNode {
 	
 	public int getTID(){
 		return this.TID;
+	}
+	public Thread getT(){
+		return this.T;
 	}
 	
 

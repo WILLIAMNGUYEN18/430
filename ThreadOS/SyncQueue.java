@@ -39,22 +39,14 @@ public class SyncQueue {
 	 * */
 	public int enqueueAndSleep(int condition){
 		//enqueue calling thread?
-		
 		int callingTID = 0;
 		queue[counter] = new QueueNode(callingTID);
 		
-		synchronized(queue[counter]){
-			while(!using){
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					Thread.currentThread().interrupt(); 
-					e.printStackTrace();
-				}
-			}
-			using = false;
-		}
+		
+		
+		//java monitor is using synchronized
+		//We are trying to create our own ThreadOS monitor?
+		
 		counter++;
 		//wait condition is child's TID
 		//while() //wait until child TID is done?
@@ -79,9 +71,30 @@ public class SyncQueue {
 		counter--;
 		
 	}
-	
+
 	public void dequeueAndWakeup(int condition, int tid){
-		
+		//checking for thread waiting on given condition
+		for(int i = 0; i < counter; i++) {
+			//if there is a thread for condition
+			if (queue[i] == condition) {
+				//dequeue, assuming by removing from array and shuffling the array
+				synchronized (queue[i]) {
+				//do I need to remove?
+				
+				//or do I need to shuffle?
+				for(int j = i; j < counter; j++) {
+					if(j+1 < queue.length) {
+						queue[j] = queue[j+1];
+					}
+				}
+				
+				//resume thread
+				queue[i].notify();
+				}
+				break;
+			}
+		}
+		counter--;
 	}
 
 }
