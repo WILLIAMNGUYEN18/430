@@ -40,5 +40,10 @@ public class QueueNode {
 		this.TID = TID;
 	}
 	
+	public String toString(){
+		return "CONDITION: " + this.condition + "\n TID: " + this.TID;
+		
+	}
+	
 
 }

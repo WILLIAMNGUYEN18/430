@@ -86,20 +86,23 @@ public class Kernel
 	    case EXEC:
 		return sysExec( ( String[] )args );
 	    case WAIT:
+	    	//waitQueue = new SyncQueue( scheduler.getMaxThreads( ) );
             myTcb = scheduler.getMyTcb();
             int currTID = myTcb.getTid();
             int Pid = myTcb.getPid();
             waitQueue.enqueueAndSleep(Pid);
+            System.out.println("WAIT FINISHED, RETURNING TID");
         
         return currTID;
         case EXIT:
-            waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
+        	System.out.println("EXIT REACHED");
+            //waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    	myTcb = scheduler.getMyTcb();
 	    	//child Tid being provided.
 	    	int TID = myTcb.getTid();
 	    	//condition = Pid still
 	    	int PID = myTcb.getPid();
-	    	waitQueue.dequeueAndWakeup(PID, TID);
+	    	waitQueue.dequeueAndWakeup(PID, TID); //BREAKING HERE
 	    	
 	    	//set termination?
 	    	myTcb.setTerminated();

@@ -50,13 +50,18 @@ public class SyncQueue {
 		
 		QueueNode temp = new QueueNode(condition);
 		queue.add(temp);
+		counter++;
 		int ind = queue.indexOf(temp);
+		System.out.println("ENQUEUE CAP:" + queue.size());
+		System.out.println(queue);
+		System.out.println("COUNTER: " + counter);
 		
 		
 		try {
 			synchronized(queue.get(ind)){
 			//no need for while?
 				queue.get(ind).wait();
+				
 			}
 		} catch (InterruptedException ex) {
 		    Thread.currentThread().interrupt();
@@ -64,7 +69,7 @@ public class SyncQueue {
 		//java monitor is using synchronized
 		//We are trying to create our own ThreadOS monitor?
 		
-		counter++;
+		
 		//wait condition is child's TID
 		//while() //wait until child TID is done?
 		//sleep
@@ -99,28 +104,49 @@ synchronized( lockObject )
 	}
 
 	public void dequeueAndWakeup(int condition, int tid){
+		System.out.println("DEQUEUE REACHED");
+		System.out.println("COUNTER: " + counter);
 		//checking for thread waiting on given condition
 		//how do I find correct node?
 		//int ind = queue.indexOf(QueueNode(condition));
 		
 		//have to iterate?
-		for(int i = 0; i < size; i++) {
-			if(queue.get(i) != null) {
-				if(queue.get(i).getCOND() == condition) {
-					synchronized(queue.get(i)){
+		//for(int i = 0; i < counter; i++) {
+		//for(int i = 0; i < queue.capacity(); i++) {
+		for(int i = 0; i < queue.size(); i++) {
+			System.out.println("FUCK" + i);
+			//System.out.println("QUEUE" + queue.capacity());
+			System.out.println("QUEUE" + queue.size());
+			System.out.println(queue);
+			synchronized(queue.get(i)){
+				System.out.println("QUEUE COND AT I: " + queue.get(i).getCOND());
+				System.out.println("CONDITION: " + condition);
+
+				//if(queue.get(i) != null) { //BREAKS ON THIS LINE, ARRAY INDEX OUT OF RANGE: 0
+					if(queue.get(i).getCOND() == condition) {
+						//synchronized(queue.get(i)){
+						System.out.println("CONDITION REACHED");
+						System.out.println("COUNTER: " + counter);
+						System.out.println(queue);
 						QueueNode temp = queue.get(i);
 						//TID passed to thread that has been woken up?
 						temp.setTID(tid);
 						//dequeue
 						queue.remove(temp);
 						//resume with notify
+						System.out.println("REMOVAL ATTEMPTED");
+						System.out.println(queue);
 						temp.notify();
-						//return directly or change value in queueNode?
-						//or externally, child thread already knows? THIS ONE
+						counter--;
+						System.out.println("COUNTER: " + counter);
+							//return directly or change value in queueNode?
+							//or externally, child thread already knows? THIS ONE
+							//}
+						break;//only do 1
 					}
-					break;//only do 1
-				}
+				//}
 			}
+
 		}
 
 	}
