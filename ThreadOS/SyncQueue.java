@@ -114,7 +114,7 @@ synchronized( lockObject )
 	}
 
 	public void dequeueAndWakeup(int condition, int tid){
-		System.out.println("DEQUEUE REACHED");
+		//System.out.println("DEQUEUE REACHED");
 		//System.out.println("COUNTER: " + counter);
 		//checking for thread waiting on given condition
 		//how do I find correct node?
@@ -124,28 +124,28 @@ synchronized( lockObject )
 		//for(int i = 0; i < counter; i++) {
 		//for(int i = 0; i < queue.capacity(); i++) {
 		for(int i = 0; i < queue.size(); i++) {
-			System.out.println("CURRENT I: " + i);
+			//System.out.println("CURRENT I: " + i);
 			//System.out.println("QUEUE" + queue.capacity());
-			System.out.println("QUEUE" + queue.size());
-			System.out.println(queue);
+			//System.out.println("QUEUE" + queue.size());
+			//System.out.println(queue);
 			synchronized(queue.get(i)){
-				System.out.println("QUEUE COND AT I: " + queue.get(i).getCOND());
-				System.out.println("CONDITION: " + condition);
+				//System.out.println("QUEUE COND AT I: " + queue.get(i).getCOND());
+				//System.out.println("CONDITION: " + condition);
 
 				//if(queue.get(i) != null) { //BREAKS ON THIS LINE, ARRAY INDEX OUT OF RANGE: 0
 					if(queue.get(i).getCOND() == condition) {
 						//synchronized(queue.get(i)){
-						System.out.println("CONDITION REACHED");
+						//System.out.println("CONDITION REACHED");
 						//System.out.println("COUNTER: " + counter);
-						System.out.println(queue);
+						//System.out.println(queue);
 						QueueNode temp = queue.get(i);
 						//TID passed to thread that has been woken up?
 						temp.setTID(tid);
 						//dequeue
 						queue.remove(temp);
 						//resume with notify
-						System.out.println("REMOVAL ATTEMPTED");
-						System.out.println(queue);
+						//System.out.println("REMOVAL ATTEMPTED");
+						//System.out.println(queue);
 						temp.notify();
 						//counter--;
 						//System.out.println("COUNTER: " + counter);
