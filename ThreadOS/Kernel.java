@@ -119,17 +119,25 @@ public class Kernel
 		// get the current thread id
 		// let the current thread sleep in waitQueue under the 
 		// condition = this thread id
-		return OK; // return a child thread id who woke me up
+		//return OK; // return a child thread id who woke me up
 	    case EXIT:
 	    	waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    	myTCB = getMyTcb();
+	    	//child Tid being provided.
 	    	int currTID = myTCB.getTid();
+	    	//condition = Pid still
 	    	int Pid = myTCB.getPid();
+	    	waitQueue.dequeueAndWakeup(Pid, currTID);
+	    	
+	    	//set termination?
+	    	myTCB.setTerminated();
+	    	
 	    	//waitQueue.deQueue
 		// get the current thread's parent id
 		// search waitQueue for and wakes up the thread under the
 		// condition = the current thread's parent id
 		// tell the Scheduler to delete the current thread (since it is exiting)
+	    // what is return value?
 		return OK;
 	    case SLEEP:   // sleep a given period of milliseconds
 		scheduler.sleepThread( param ); // param = milliseconds

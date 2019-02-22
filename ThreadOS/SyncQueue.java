@@ -108,11 +108,14 @@ synchronized( lockObject )
 				if(queue.get(i).getCOND() == condition) {
 					synchronized(queue.get(i)){
 						QueueNode temp = queue.get(i);
+						//TID passed to thread that has been woken up?
 						temp.setTID(tid);
+						//dequeue
 						queue.remove(temp);
+						//resume with notify
 						temp.notify();
 						//return directly or change value in queueNode?
-						//or externally, child thread already knows?
+						//or externally, child thread already knows? THIS ONE
 					}
 					break;//only do 1
 				}
