@@ -86,19 +86,20 @@ public class Kernel
 	    case EXEC:
 		return sysExec( ( String[] )args );
 	    case WAIT:
-	    	System.out.println("WAIT REACHED");
+	    	//System.out.println("WAIT REACHED");
 	    	//waitQueue = new SyncQueue( scheduler.getMaxThreads( ) );
             myTcb = scheduler.getMyTcb();
             int currTID = myTcb.getTid();
             int Pid = myTcb.getPid();
-	    	System.out.println("TID = " + currTID);
-	    	System.out.println("PID = " + Pid);
-            waitQueue.enqueueAndSleep(Pid);
-            System.out.println("WAIT FINISHED, RETURNING TID");
-        
-        return currTID;
+	    	//System.out.println("TID = " + currTID);
+	    	//System.out.println("PID = " + Pid);
+	    	//waitQueue.enqueueAndSleep(Pid);
+	    	int childTID = waitQueue.enqueueAndSleep(currTID);
+            //System.out.println("WAIT FINISHED, RETURNING child TID" + childTID);
+	    	
+        return childTID;
         case EXIT:
-        	System.out.println("EXIT REACHED");
+        	//System.out.println("EXIT REACHED");
         	
             //waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    	myTcb = scheduler.getMyTcb();
@@ -106,8 +107,8 @@ public class Kernel
 	    	int TID = myTcb.getTid();
 	    	//condition = Pid still
 	    	int PID = myTcb.getPid();
-	    	System.out.println("TID = " + TID);
-	    	System.out.println("PID = " + PID);
+	    	//System.out.println("TID = " + TID);
+	    	//System.out.println("PID = " + PID);
 	    	waitQueue.dequeueAndWakeup(PID, TID); //BREAKING HERE
 	    	
 	    	//set termination?

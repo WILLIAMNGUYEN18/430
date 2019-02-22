@@ -47,20 +47,24 @@ public class SyncQueue {
 	//condition is calling thread and PID
 	public int enqueueAndSleep(int condition){
 		//enqueue calling thread?
-		
+		//System.out.println("ENQUEUE REACHED");
 		QueueNode temp = new QueueNode(condition);
 		queue.add(temp);
-		counter++;
+		//counter++;
 		int ind = queue.indexOf(temp);
-		System.out.println("ENQUEUE CAP:" + queue.size());
-		System.out.println(queue);
-		System.out.println("COUNTER: " + counter);
-		
+		//System.out.println("ENQUEUE SIZE:" + queue.size());
+		//System.out.println(queue);
+		//System.out.println("COUNTER: " + counter);
+		//QueueNode store = null;
 		
 		try {
 			synchronized(queue.get(ind)){
 			//no need for while?
+				//System.out.println("ENQUEUE SYNC 1: " + queue.get(ind));
 				queue.get(ind).wait();
+				//store = queue.get(ind);
+				//System.out.println("ENQUEUE SYNC 2: " + store);
+				//System.out.println("TEMP" + temp);
 				
 			}
 		} catch (InterruptedException ex) {
@@ -73,8 +77,14 @@ public class SyncQueue {
 		//wait condition is child's TID
 		//while() //wait until child TID is done?
 		//sleep
-		return 0;
-		
+		//return queue.get(ind).;
+		//if(store != null){
+		//	System.out.println("ENQUEUE FINISHED, returning TID: " + store.getTID());
+		//	return store.getTID();
+		//}
+		//System.out.println("STORE IS NULL");
+		//System.out.println("TEMP TID: " + temp.getTID());
+		return temp.getTID();
 	}
 	/*
 	 * 
@@ -105,7 +115,7 @@ synchronized( lockObject )
 
 	public void dequeueAndWakeup(int condition, int tid){
 		System.out.println("DEQUEUE REACHED");
-		System.out.println("COUNTER: " + counter);
+		//System.out.println("COUNTER: " + counter);
 		//checking for thread waiting on given condition
 		//how do I find correct node?
 		//int ind = queue.indexOf(QueueNode(condition));
@@ -114,7 +124,7 @@ synchronized( lockObject )
 		//for(int i = 0; i < counter; i++) {
 		//for(int i = 0; i < queue.capacity(); i++) {
 		for(int i = 0; i < queue.size(); i++) {
-			System.out.println("FUCK" + i);
+			System.out.println("CURRENT I: " + i);
 			//System.out.println("QUEUE" + queue.capacity());
 			System.out.println("QUEUE" + queue.size());
 			System.out.println(queue);
@@ -126,7 +136,7 @@ synchronized( lockObject )
 					if(queue.get(i).getCOND() == condition) {
 						//synchronized(queue.get(i)){
 						System.out.println("CONDITION REACHED");
-						System.out.println("COUNTER: " + counter);
+						//System.out.println("COUNTER: " + counter);
 						System.out.println(queue);
 						QueueNode temp = queue.get(i);
 						//TID passed to thread that has been woken up?
@@ -137,8 +147,8 @@ synchronized( lockObject )
 						System.out.println("REMOVAL ATTEMPTED");
 						System.out.println(queue);
 						temp.notify();
-						counter--;
-						System.out.println("COUNTER: " + counter);
+						//counter--;
+						//System.out.println("COUNTER: " + counter);
 							//return directly or change value in queueNode?
 							//or externally, child thread already knows? THIS ONE
 							//}
