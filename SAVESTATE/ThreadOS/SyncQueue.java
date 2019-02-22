@@ -49,6 +49,7 @@ public class SyncQueue {
 		//enqueue calling thread?
 		
 		QueueNode temp = new QueueNode(condition);
+		
 		queue.add(temp);
 		int ind = queue.indexOf(temp);
 		
