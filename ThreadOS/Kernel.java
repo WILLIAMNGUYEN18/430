@@ -106,7 +106,7 @@ public class Kernel
 	    	//It does not receive any arguments, (thus no PID to wait on), 
 	    	//but simply waits for one of the child processes and 
 	    	//returns a PID that has woken up the calling process.
-	    	myTCB = getMyTcb();
+	    	myTCB = scheduler.getMyTcb();
 	    	int currTID = myTCB.getTid();
 	    	int Pid = myTCB.getPid();
 	    	waitQueue.enqueueAndSleep(Pid);
@@ -122,7 +122,7 @@ public class Kernel
 		//return OK; // return a child thread id who woke me up
 	    case EXIT:
 	    	waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
-	    	myTCB = getMyTcb();
+	    	myTCB = scheduler.getMyTcb();
 	    	//child Tid being provided.
 	    	int currTID = myTCB.getTid();
 	    	//condition = Pid still

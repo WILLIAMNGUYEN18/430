@@ -1,5 +1,5 @@
 
-import java.util.*
+import java.util.*;
 public class SyncQueue {
 	//private QueueNode[] queue;
 	private Vector<QueueNode> queue;
@@ -28,14 +28,14 @@ public class SyncQueue {
 	 * */
 	public SyncQueue(){
 		size = 10;
-		queue = new Vector<QueueNode>;
+		queue = new Vector<QueueNode>(size);
 		counter = 0;
 	}
 	
 	public SyncQueue(int condMax){
 		//size = condMax;
 		size = condMax;
-		queue = new Vector<QueueNode>;
+		queue = new Vector<QueueNode>(size);
 		counter = 0;
 	}
 	
@@ -48,18 +48,20 @@ public class SyncQueue {
 	public int enqueueAndSleep(int condition){
 		//enqueue calling thread?
 		
-		temp = new QueueNode(condition);
+		QueueNode temp = new QueueNode(condition);
 		
 		queue.add(temp);
 		int ind = queue.indexOf(temp);
 		
 		
-		
-		synchronized(queue.get(ind)){
+		try {
+			synchronized(queue.get(ind)){
 			//no need for while?
-			queue.get(ind).wait();
+				queue.get(ind).wait();
+			}
+		} catch (InterruptedException ex) {
+		    Thread.currentThread().interrupt();
 		}
-		
 		//java monitor is using synchronized
 		//We are trying to create our own ThreadOS monitor?
 		
