@@ -4,7 +4,6 @@ import java.io.*;
 
 public class Kernel
 {
-	
     // Interrupt requests
     public final static int INTERRUPT_SOFTWARE = 1;  // System calls
     public final static int INTERRUPT_DISK     = 2;  // Disk interrupts
@@ -86,40 +85,15 @@ public class Kernel
 		return OK;
 	    case EXEC:
 		return sysExec( ( String[] )args );
-		/*
-		 *  SysLib.join() system call. 
-		 *  We would like the SysLib.join() 
-		 *  system call to follow similar semantics 
-		 *  as the Unix/Linux wait() system call. 
-		 *  SysLib.join( ) will permit the 
-		 *  calling thread to sleep until one 
-		 *  of its child threads terminates by 
-		 *  calling SysLib.exit( ). It should 
-		 *  return the ID of the child thread 
-		 *  that woke up the calling thread.  
-		 * */
-		//SyncQueue waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    case WAIT:
-	    // In Unix/Linux, the wait( ) system call is based on this idea. 
-	    	//It does not receive any arguments, (thus no PID to wait on), 
-	    	//but simply waits for one of the child processes and 
-	    	//returns a PID that has woken up the calling process.
-	    	myTcb = scheduler.getMyTcb();
-	    	int currTID = myTcb.getTid();
-	    	int Pid = myTcb.getPid();
-	    	waitQueue.enqueueAndSleep(Pid);
-	    	
-	    return currTID;
-	    //getTid();
-	    //getPid();
-	    //TCB getMyTcb(); 
-	    	
-		// get the current thread id
-		// let the current thread sleep in waitQueue under the 
-		// condition = this thread id
-		//return OK; // return a child thread id who woke me up
-	    case EXIT:
-	    	waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
+            myTcb = scheduler.getMyTcb();
+            int currTID = myTcb.getTid();
+            int Pid = myTcb.getPid();
+            waitQueue.enqueueAndSleep(Pid);
+        
+        return currTID;
+        case EXIT:
+            waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
 	    	myTcb = scheduler.getMyTcb();
 	    	//child Tid being provided.
 	    	int TID = myTcb.getTid();
@@ -129,13 +103,10 @@ public class Kernel
 	    	
 	    	//set termination?
 	    	myTcb.setTerminated();
-	    	
-	    	//waitQueue.deQueue
 		// get the current thread's parent id
 		// search waitQueue for and wakes up the thread under the
 		// condition = the current thread's parent id
 		// tell the Scheduler to delete the current thread (since it is exiting)
-	    // what is return value?
 		return OK;
 	    case SLEEP:   // sleep a given period of milliseconds
 		scheduler.sleepThread( param ); // param = milliseconds

@@ -4,8 +4,6 @@ import java.io.*;
 
 public class Kernel
 {
-	//waitQueue
-	private static SyncQueue waitQueue;
 	
     // Interrupt requests
     public final static int INTERRUPT_SOFTWARE = 1;  // System calls
@@ -106,9 +104,9 @@ public class Kernel
 	    	//It does not receive any arguments, (thus no PID to wait on), 
 	    	//but simply waits for one of the child processes and 
 	    	//returns a PID that has woken up the calling process.
-	    	myTCB = scheduler.getMyTcb();
-	    	int currTID = myTCB.getTid();
-	    	int Pid = myTCB.getPid();
+	    	myTcb = scheduler.getMyTcb();
+	    	int currTID = myTcb.getTid();
+	    	int Pid = myTcb.getPid();
 	    	waitQueue.enqueueAndSleep(Pid);
 	    	
 	    return currTID;
@@ -122,15 +120,15 @@ public class Kernel
 		//return OK; // return a child thread id who woke me up
 	    case EXIT:
 	    	waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
-	    	myTCB = scheduler.getMyTcb();
+	    	myTcb = scheduler.getMyTcb();
 	    	//child Tid being provided.
-	    	int currTID = myTCB.getTid();
+	    	int TID = myTcb.getTid();
 	    	//condition = Pid still
-	    	int Pid = myTCB.getPid();
-	    	waitQueue.dequeueAndWakeup(Pid, currTID);
+	    	int PID = myTcb.getPid();
+	    	waitQueue.dequeueAndWakeup(PID, TID);
 	    	
 	    	//set termination?
-	    	myTCB.setTerminated();
+	    	myTcb.setTerminated();
 	    	
 	    	//waitQueue.deQueue
 		// get the current thread's parent id
