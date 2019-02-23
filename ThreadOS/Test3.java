@@ -20,14 +20,25 @@ class Test3 extends Thread {
 
     public void run( ) { 
 
-        String[] args1 = … // parse arguments for computationally intensive test program, e.g., "TestThread3 comp" 
+        String[] args1 = SysLib.stringToArgs( "TestThread3 a" );//… // parse arguments for computationally intensive test program, e.g., "TestThread3 comp" 
 
-        String[] args2 = … // parse arguments for disk intensive test program  
-
+        String[] args2 = SysLib.stringToArgs( "TestThread3 b" );//… // parse arguments for disk intensive test program  
+        /*
+        String[] args1 = 
+	    String[] args2 = SysLib.stringToArgs( "TestThread2 b 1000 0" );
+	
+        */
         long startTime = (new Date( ) ).getTime( ); 
 
+        System.out.println(args1);
+        System.out.println(args2);
+        
         
         for(int i = 0; i < pairs; i++){
+            args1 += pairs;
+            args2 += pairs;
+            System.out.println(args1);
+            System.out.println(args2);
             SysLib.exec( args1 );
             SysLib.exec( args2 );
         
