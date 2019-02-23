@@ -122,9 +122,16 @@ public class Kernel
 		scheduler.sleepThread( param ); // param = milliseconds
 		return OK;
 	    
-	    
-	    case RAWREAD: // read a block of data from disk
-	    	while(disk.read(blockId, buffer) == false) {
+		//byte[] buffer = new byte[512];
+		/*
+		public static int rawread( int blkNumber, byte[] b ) {
+        	return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+				 Kernel.RAWREAD, blkNumber, b );
+    	}
+		*/
+		case RAWREAD: // read a block of data from disk
+			//param, ( byte[] )args
+	    	while(disk.read(param, ( byte[] )args ) == false) {
 	    		ioQueue.enqueueAndSleep(COND_DISK_REQ);
 	    	}
 	    	while(disk.testAndResetReady() == false) {
@@ -134,7 +141,8 @@ public class Kernel
 		return OK;
 	    
 	    
-	    case RAWWRITE: // write a block of data to disk
+		case RAWWRITE: // write a block of data to disk
+			//disk.
 	    	while(disk.write(param, (byte[])args)  == false) {
 	    		ioQueue.enqueueAndSleep(COND_DISK_REQ);
 	    	}

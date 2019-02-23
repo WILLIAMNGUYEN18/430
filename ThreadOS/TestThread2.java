@@ -27,7 +27,9 @@ class TestThread2 extends Thread {
 		     " response time = " + (responseTime - submissionTime) +
 		     " turnaround time = " + (completionTime - submissionTime)+
 		     " execution time = " + (completionTime - responseTime)+
-		     "\n");
+			 "\n");
+	
+	System.out.println("check 4.5");
 	SysLib.exit( );
     }
 }
