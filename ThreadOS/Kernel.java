@@ -86,33 +86,11 @@ public class Kernel
 	    case EXEC:
 		return sysExec( ( String[] )args );
 	    case WAIT:
-	    	//System.out.println("WAIT REACHED");
-	    	//waitQueue = new SyncQueue( scheduler.getMaxThreads( ) );
-            myTcb = scheduler.getMyTcb();
-            int currTID = myTcb.getTid();
-            int Pid = myTcb.getPid();
-	    	//System.out.println("TID = " + currTID);
-	    	//System.out.println("PID = " + Pid);
-	    	//waitQueue.enqueueAndSleep(Pid);
-	    	int childTID = waitQueue.enqueueAndSleep(currTID);
-            //System.out.println("WAIT FINISHED, RETURNING child TID" + childTID);
-	    	
-        return childTID;
-        case EXIT:
-        	//System.out.println("EXIT REACHED");
-        	
-            //waitQueue = new SyncQueue( scheduler.getMaxThreads( ) ); 
-	    	myTcb = scheduler.getMyTcb();
-	    	//child Tid being provided.
-	    	int TID = myTcb.getTid();
-	    	//condition = Pid still
-	    	int PID = myTcb.getPid();
-	    	//System.out.println("TID = " + TID);
-	    	//System.out.println("PID = " + PID);
-	    	waitQueue.dequeueAndWakeup(PID, TID); //BREAKING HERE
-	    	
-	    	//set termination?
-	    	myTcb.setTerminated();
+		// get the current thread id
+		// let the current thread sleep in waitQueue under the 
+		// condition = this thread id
+		return OK; // return a child thread id who woke me up
+	    case EXIT:
 		// get the current thread's parent id
 		// search waitQueue for and wakes up the thread under the
 		// condition = the current thread's parent id
@@ -121,49 +99,24 @@ public class Kernel
 	    case SLEEP:   // sleep a given period of milliseconds
 		scheduler.sleepThread( param ); // param = milliseconds
 		return OK;
-	    
-		//byte[] buffer = new byte[512];
-		/*
-		public static int rawread( int blkNumber, byte[] b ) {
-        	return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-				 Kernel.RAWREAD, blkNumber, b );
-    	}
-		*/
-		case RAWREAD: // read a block of data from disk
-			//param, ( byte[] )args
-	    	while(disk.read(param, ( byte[] )args ) == false) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_REQ);
-	    	}
-	    	while(disk.testAndResetReady() == false) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_FIN);
-	    	}
-	    	
+	    case RAWREAD: // read a block of data from disk
+		while ( disk.read( param, ( byte[] )args ) == false )
+		    ; // busy wait
+		while ( disk.testAndResetReady( ) == false )
+		    ; // busy wait
 		return OK;
-	    
-	    
-		case RAWWRITE: // write a block of data to disk
-			//disk.
-	    	while(disk.write(param, (byte[])args)  == false) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_REQ);
-	    	}
-	    	while(disk.testAndResetReady() == false) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_FIN);
-	    	}
+	    case RAWWRITE: // write a block of data to disk
+		while ( disk.write( param, ( byte[] )args ) == false )
+		    ; // busy wait
+		while ( disk.testAndResetReady( ) == false )
+		    ; // busy wait
 		return OK;
-	    
-	    
 	    case SYNC:     // synchronize disk data to a real file
-	    	while ( disk.sync( ) == false ) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_REQ);
-	    	}
-		    
-	    	while ( disk.testAndResetReady( ) == false ) {
-	    		ioQueue.enqueueAndSleep(COND_DISK_FIN);
-	    	}
-		    
+		while ( disk.sync( ) == false )
+		    ; // busy wait
+		while ( disk.testAndResetReady( ) == false )
+		    ; // busy wait
 		return OK;
-	    
-	    
 	    case READ:
 		switch ( param ) {
 		case STDIN:
@@ -228,13 +181,12 @@ public class Kernel
 		return OK;
 	    }
 	    return ERROR;
-	    
 	case INTERRUPT_DISK: // Disk interrupts
 	    // wake up the thread waiting for a service completion
-	    ioQueue.dequeueAndWakeup( COND_DISK_FIN );
+	    //ioQueue.dequeueAndWakeup( COND_DISK_FIN );
 
 	    // wake up the thread waiting for a request acceptance
-	    ioQueue.dequeueAndWakeup( COND_DISK_REQ );
+	    //ioQueue.dequeueAndWakeup( COND_DISK_REQ );
 
 	    return OK;
 	case INTERRUPT_IO:   // other I/O interrupts (not implemented)
