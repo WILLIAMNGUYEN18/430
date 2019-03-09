@@ -37,6 +37,11 @@ public class Inode {
    */
    Inode( short iNumber ) {                       // retrieving inode from disk
       // design it by yourself.
+      //read disk block corresponding to inode?
+
+      //locate corresponding inode information in block
+
+      //initialize inode to new inode with information
    }
 
    int toDisk( short iNumber ) {                  // save to disk as the i-th inode

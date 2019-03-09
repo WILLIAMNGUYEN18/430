@@ -52,6 +52,7 @@ public class FileTable {
             newEntiNode.toDisk(newEntiNumber);
        
        // return a reference to this file (structure) table entry
+       //table.add(newEnt);
        return newEnt;
     }
  
@@ -62,9 +63,13 @@ public class FileTable {
        e.inode.toDisk(e.iNumber);
        // free this file table entry.
          //HOW TO FREE?
-         //
+         //ifree() in Directory?
+      //ifree(e.iNumber);
        // return true if this file table entry found in my table
-       //if(table.get())
+       if(table.contains(e)){
+          return true;
+       }
+       return false;
     }
  
     public synchronized boolean fempty( ) {
