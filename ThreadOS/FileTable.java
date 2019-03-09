@@ -46,6 +46,7 @@ public class FileTable {
        
        // increment this inode's count
             //unsure where
+            newEnt.count++;
        
        // immediately write back this inode to the disk
             newEntiNode.toDisk(newEntiNumber);
@@ -56,10 +57,14 @@ public class FileTable {
  
     public synchronized boolean ffree( FileTableEntry e ) {
        // receive a file table entry reference
+
        // save the corresponding inode to the disk
+       e.inode.toDisk(e.iNumber);
        // free this file table entry.
          //HOW TO FREE?
+         //
        // return true if this file table entry found in my table
+       //if(table.get())
     }
  
     public synchronized boolean fempty( ) {
