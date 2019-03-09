@@ -8,7 +8,9 @@ public class Inode {
    public short direct[] = new short[directSize]; // direct pointers
    public short indirect;                         // a indirect pointer
 
-   /*    Create a Vector<Inode> object that maintains all inode on memory, is shared among all threads, and is exclusively access by each thread.  
+   /*    Create a Vector<Inode> object that maintains all 
+   inode on memory, is shared among all threads, 
+   and is exclusively access by each thread.  
    Probably synchronized calls?
    */
 
