@@ -11,6 +11,7 @@ public class Inode {
    /*    Create a Vector<Inode> object that maintains all 
    inode on memory, is shared among all threads, 
    and is exclusively access by each thread.  
+   Where should I do this?
    Probably synchronized calls?
    */
 

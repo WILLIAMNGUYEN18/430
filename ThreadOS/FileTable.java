@@ -45,8 +45,9 @@ public class FileTable {
             //ialloc does both?
        
        // increment this inode's count
-            //unsure where
+            //incrementing both inode and FTE
             newEnt.count++;
+            newEntiNode.count++;
        
        // immediately write back this inode to the disk
             newEntiNode.toDisk(newEntiNumber);
@@ -63,8 +64,14 @@ public class FileTable {
        e.inode.toDisk(e.iNumber);
        // free this file table entry.
          //HOW TO FREE?
-         //ifree() in Directory?
+         //ifree() in Directory? removes Inode
+            //since in directory, can also remove references
+            //in regards to fnames and fsize
+         //need to remove rest of FileTableEntry
+         // e = null or some shit?;
+         //need 
       //ifree(e.iNumber);
+      //
        // return true if this file table entry found in my table
        if(table.contains(e)){
           return true;
