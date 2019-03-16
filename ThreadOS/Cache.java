@@ -66,7 +66,7 @@ public class Cache{
             SysLib.rawread(blockId, buffer);
 
             //need to create an object and put buffer inside
-            CacheEntry newBlock = new CacheEntry();
+            CacheEntry newBlock = new CacheEntry(blockSize);
             newBlock.cacheBlock = buffer;
             newBlock.blockFrame = blockId;
 
@@ -184,7 +184,7 @@ public class Cache{
             pageTable.get(indblk).refBit = 1;
             
         } else{
-            CacheEntry newBlock = new CacheEntry();
+            CacheEntry newBlock = new CacheEntry(blockSize);
             newBlock.blockFrame = blockId;
             newBlock.cacheBlock = buffer;
             newBlock.refBit = 1;
@@ -290,8 +290,8 @@ public class Cache{
                     pageTable.get(i).dirtBit = 0;
                 }
             }
-
         }
+        pageTable.clear();
     }
 
 
