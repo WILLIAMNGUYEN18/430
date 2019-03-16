@@ -2,16 +2,15 @@ import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
 
-public int blockSize;
-public int cacheBlocks;
-public byte[] alloc;
-
 public class Cache{
-
+    public int blockSize;
+    public int cacheBlocks;
+    public Vector<CacheEntry> pageTable;
+    
     public Cache(int blockSize, int cacheBlocks){
         this.blockSize = blockSize;
         this.cacheBlocks = cacheBlocks;
-        alloc = new byte[cacheBlocks];
+        pageTable = new Vector<CacheEntry>(cacheBlocks);
 
     }
 
@@ -27,6 +26,60 @@ public class Cache{
         Note: The ThreadOS disk contains 1000 blocks.  You should only return false in the case of an out of bounds blockId. 
     */
     public boolean read(int blockId, byte buffer[]){
+        if(blockId >=1000){
+            return false;
+        }
+        boolean inMemory = false;
+
+        for(int i = 0; i < pageTable.size(); i++){
+            if(pageTable.get(i) != null){
+                //assuming block frame number = blockId
+                if(pageTable.get(i).blockFrame == blockId){
+                    inMemory = true;
+                }
+            }
+        }
+        //If it is in memory: reads into the buffer[ ] 
+        //the contents of the cache block specified by blockId  
+        if(inMemory){
+            //reading contents FROM cache?
+            //not reading buffer to cache?
+            //FIX?!?!!?
+            pageTable.get(blockId).cacheBlock = buffer;
+            pageTable.get(blockId).refBit = 1;
+
+        } else{
+            //If it is not in memory: reads the 
+            //corresponding disk block from the 
+            //ThreadOS disk (Disk.java) and load it 
+            //into the main memory and add it to the 
+            //page table (i.e., is in cache).
+
+            //syslib.rawread for corresponding blockId and byte
+            //buffer is changed through rawread (passed as reference)
+            //can use that to change cacheBlock.
+            SysLib.rawread(blockId, buffer);
+
+            //need to create an object and put buffer inside
+            CachEntry newBlock = new CacheEntry();
+            newBlock.cacheBlock = buffer;
+            newBlock.blockFrame = blockId;
+
+            //block was accessed, change reference bit to 1;
+            newBlock.refBit = 1;
+            
+            //need to fix this. Need to do enhanced second chance
+            //need to check for a free block (-1 on blockFrame val)
+            for(int j = 0; j < pageTable.size(); j++){
+                
+            }
+            pageTable.set(blockId, newBlock); 
+
+        }
+        
+        //where is page table
+        //page table is actually our CachEntry vector
+        return true;
 
     }
 
