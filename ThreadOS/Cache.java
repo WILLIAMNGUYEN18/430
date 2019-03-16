@@ -30,12 +30,15 @@ public class Cache{
             return false;
         }
         boolean inMemory = false;
+        int indblk = 0;
 
         for(int i = 0; i < pageTable.size(); i++){
             if(pageTable.get(i) != null){
                 //assuming block frame number = blockId
                 if(pageTable.get(i).blockFrame == blockId){
                     inMemory = true;
+                    indblk = i;
+                    break;
                 }
             }
         }
@@ -44,8 +47,7 @@ public class Cache{
         if(inMemory){
             //reading contents FROM cache?
             //not reading buffer to cache?
-            //FIX?!?!!?
-            pageTable.get(blockId).cacheBlock = buffer;
+            buffer = pageTable.get(blockId).cacheBlock;
             pageTable.get(blockId).refBit = 1;
 
         } else{
@@ -58,10 +60,13 @@ public class Cache{
             //syslib.rawread for corresponding blockId and byte
             //buffer is changed through rawread (passed as reference)
             //can use that to change cacheBlock.
+
+            //this changes what buffers contains (which is output of read)
+            //while simultaneously providing a new byte[] to cache
             SysLib.rawread(blockId, buffer);
 
             //need to create an object and put buffer inside
-            CachEntry newBlock = new CacheEntry();
+            CacheEntry newBlock = new CacheEntry();
             newBlock.cacheBlock = buffer;
             newBlock.blockFrame = blockId;
 
@@ -70,15 +75,71 @@ public class Cache{
             
             //need to fix this. Need to do enhanced second chance
             //need to check for a free block (-1 on blockFrame val)
+
+            //loop through first time
+            //no changes to bits
+            //look for if access and bit = 0;
             for(int j = 0; j < pageTable.size(); j++){
-                
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(j).refBit = 0 && pageTable.get(j).dirtBit = 0){
+                        //replace
+                        pageTable.set(j, newBlock);
+                        break;
+                    }
+                }//else do nothing
             }
-            pageTable.set(blockId, newBlock); 
+            //scan looking for not accessed, but modified recently
+            //refBit = 0, dirtBit = 1;
+            //if so, write back to disk, then replace
+            //at end, also set all refBits to 0
+            for(int k = 0; k < pageTable.size(); k++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(k).refBit = 0 && pageTable.get(k).dirtBit = 1){
+                        //write back to disk
+                        //SysLib.rawwrite(blkNumber, byte [] b)
+                        SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
+                        
+                        //replace
+                        pageTable.set(k, newBlock);
+                        break;
+                    }
+                }
+                pageTable.get(k).refBit = 0;
+            }
+
+            //3rd Loop, repeating step 1
+            for(int l = 0; l < pageTable.size(); l++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(l).refBit = 0 && pageTable.get(l).dirtBit = 0){
+                        //replace
+                        pageTable.set(l, newBlock);
+                        break;
+                    }
+                }
+            }
+
+            //4th Loop, repeating step 2, replacement should be secured here.
+            for(int k = 0; k < pageTable.size(); k++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(k.refBit = 0 && pageTable.get(k).dirtBit = 1){
+                        //write back to disk
+                        //SysLib.rawwrite(blkNumber, byte [] b)
+                        SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
+                        
+                        //replace
+                        pageTable.set(k, newBlock);
+                        break;
+                    }
+                }
+
+                pageTable.get(k).refBit = 0;
+            }
+            
+            //read from cache to buffer?
+            //already do with SysLib.rawread (using same buffer reference)
 
         }
         
-        //where is page table
-        //page table is actually our CachEntry vector
         return true;
 
     }
@@ -99,7 +160,98 @@ public class Cache{
     Note: The ThreadOS disk contains 1000 blocks.  You should only return false in the case of an out of bounds blockId. 
     */
     public boolean write(int blockId, byte buffer[]){
+        if(blockId >=1000){
+            return false;
+        }
+
+        boolean inMemory = false;
+        int indblk = 0;
+
+        for (int i = 0; i < pageTable.size(); i ++){
+            if(pageTable.get(i) != null){
+                if(pageTable.get(i.blockFrame == blockId)){
+                    inMemory = true;
+                    indblk = i;
+                    break;
+                }
+            }
+
+        }
+
+        if(inMemory){
+            pageTable.get(indblk).cacheBlock = buffer;
+            pageTable.get(indblk).dirtBit = 1;
+            pageTable.get(indblk).refBit = 1;
+            
+        } else{
+            CacheEntry newBlock = new CacheEntry();
+            newBlock.blockFrame = blockId;
+            newBlock.cacheBlock = buffer;
+            newBlock.refBit = 1;
+
+            //repeat read's enhance second chance algo
+
+            for(int j = 0; j < pageTable.size(); j++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(j).refBit = 0 && pageTable.get(j).dirtBit = 0){
+                        //replace
+                        pageTable.set(j, newBlock);
+                        break;
+                    }
+                }//else do nothing
+            }
+            //scan looking for not accessed, but modified recently
+            //refBit = 0, dirtBit = 1;
+            //if so, write back to disk, then replace
+            //at end, also set all refBits to 0
+            for(int k = 0; k < pageTable.size(); k++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(k).refBit = 0 && pageTable.get(k).dirtBit = 1){
+                        //write back to disk
+                        //SysLib.rawwrite(blkNumber, byte [] b)
+                        SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
+                        
+                        //replace
+                        pageTable.set(k, newBlock);
+                        break;
+                    }
+                }
+                pageTable.get(k).refBit = 0;
+            }
+
+            //3rd Loop, repeating step 1
+            for(int l = 0; l < pageTable.size(); l++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(l).refBit = 0 && pageTable.get(l).dirtBit = 0){
+                        //replace
+                        pageTable.set(l, newBlock);
+                        break;
+                    }
+                }
+            }
+
+            //4th Loop, repeating step 2, replacement should be secured here.
+            for(int k = 0; k < pageTable.size(); k++){
+                if(pageTable.get(i) != null){
+                    if(pageTable.get(k.refBit = 0 && pageTable.get(k).dirtBit = 1){
+                        //write back to disk
+                        //SysLib.rawwrite(blkNumber, byte [] b)
+                        SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
+                        
+                        //replace
+                        pageTable.set(k, newBlock);
+                        break;
+                    }
+                }
+
+                pageTable.get(k).refBit = 0;
+            }
+            
+
         
+        }
+        
+
     }
 
     /*
@@ -110,6 +262,15 @@ public class Cache{
     Still maintains clean block copies in Cache.java. Must be called when shutting down ThreadOS.  
     */
     public void sync(){
+        for(int i = 0; i < pageTable.size()){
+            if(pageTable.get(i) != null){
+                if(pageTable.get(i).dirtBit == 1){
+                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock)
+                    pageTable.get(i).dirtBit = 0;
+                }
+            }
+
+        }
 
     }
     /*
@@ -121,7 +282,17 @@ public class Cache{
 
     Should be called when you choose to run a different test case that doesn’t   include the cached data from the previous test. 
     */
-    public void flush(){}
+    public void flush(){
+        for(int i = 0; i < pageTable.size()){
+            if(pageTable.get(i) != null){
+                if(pageTable.get(i).dirtBit == 1){
+                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock)
+                    pageTable.get(i).dirtBit = 0;
+                }
+            }
+
+        }
+    }
 
 
 
