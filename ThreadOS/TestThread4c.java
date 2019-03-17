@@ -1,13 +1,13 @@
 import java.util.Date;
 import java.util.Random;
-class  TestThread4b extends Thread{
+class  TestThread4 extends Thread{
     private String name;
     private String able;
     private long submissionTime;
     private long responseTime;
     private long completionTime;
 
-    public TestThread4b(String args[]){
+    public TestThread4c(String args[]){
         name = args[0];
         able = args[1];
         submissionTime = new Date( ).getTime( );
