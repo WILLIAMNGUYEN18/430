@@ -80,8 +80,8 @@ public class Cache{
             //no changes to bits
             //look for if access and bit = 0;
             for(int j = 0; j < pageTable.size(); j++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(j).refBit = 0 && pageTable.get(j).dirtBit = 0){
+                if(pageTable.get(j) != null){
+                    if(pageTable.get(j).refBit == 0 && pageTable.get(j).dirtBit == 0){
                         //replace
                         pageTable.set(j, newBlock);
                         break;
@@ -93,8 +93,8 @@ public class Cache{
             //if so, write back to disk, then replace
             //at end, also set all refBits to 0
             for(int k = 0; k < pageTable.size(); k++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(k).refBit = 0 && pageTable.get(k).dirtBit = 1){
+                if(pageTable.get(k) != null){
+                    if(pageTable.get(k).refBit == 0 && pageTable.get(k).dirtBit == 1){
                         //write back to disk
                         //SysLib.rawwrite(blkNumber, byte [] b)
                         SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
@@ -109,8 +109,8 @@ public class Cache{
 
             //3rd Loop, repeating step 1
             for(int l = 0; l < pageTable.size(); l++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(l).refBit = 0 && pageTable.get(l).dirtBit = 0){
+                if(pageTable.get(l) != null){
+                    if(pageTable.get(l).refBit == 0 && pageTable.get(l).dirtBit == 0){
                         //replace
                         pageTable.set(l, newBlock);
                         break;
@@ -120,8 +120,8 @@ public class Cache{
 
             //4th Loop, repeating step 2, replacement should be secured here.
             for(int k = 0; k < pageTable.size(); k++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(k.refBit = 0 && pageTable.get(k).dirtBit = 1){
+                if(pageTable.get(k) != null){
+                    if(pageTable.get(k).refBit == 0 && pageTable.get(k).dirtBit == 1){
                         //write back to disk
                         //SysLib.rawwrite(blkNumber, byte [] b)
                         SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
@@ -169,7 +169,7 @@ public class Cache{
 
         for (int i = 0; i < pageTable.size(); i ++){
             if(pageTable.get(i) != null){
-                if(pageTable.get(i.blockFrame == blockId)){
+                if(pageTable.get(i).blockFrame == blockId){
                     inMemory = true;
                     indblk = i;
                     break;
@@ -192,8 +192,8 @@ public class Cache{
             //repeat read's enhance second chance algo
 
             for(int j = 0; j < pageTable.size(); j++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(j).refBit = 0 && pageTable.get(j).dirtBit = 0){
+                if(pageTable.get(j) != null){
+                    if(pageTable.get(j).refBit == 0 && pageTable.get(j).dirtBit == 0){
                         //replace
                         pageTable.set(j, newBlock);
                         break;
@@ -205,8 +205,8 @@ public class Cache{
             //if so, write back to disk, then replace
             //at end, also set all refBits to 0
             for(int k = 0; k < pageTable.size(); k++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(k).refBit = 0 && pageTable.get(k).dirtBit = 1){
+                if(pageTable.get(k) != null){
+                    if(pageTable.get(k).refBit == 0 && pageTable.get(k).dirtBit == 1){
                         //write back to disk
                         //SysLib.rawwrite(blkNumber, byte [] b)
                         SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
@@ -221,8 +221,8 @@ public class Cache{
 
             //3rd Loop, repeating step 1
             for(int l = 0; l < pageTable.size(); l++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(l).refBit = 0 && pageTable.get(l).dirtBit = 0){
+                if(pageTable.get(l) != null){
+                    if(pageTable.get(l).refBit == 0 && pageTable.get(l).dirtBit == 0){
                         //replace
                         pageTable.set(l, newBlock);
                         break;
@@ -232,8 +232,8 @@ public class Cache{
 
             //4th Loop, repeating step 2, replacement should be secured here.
             for(int k = 0; k < pageTable.size(); k++){
-                if(pageTable.get(i) != null){
-                    if(pageTable.get(k.refBit = 0 && pageTable.get(k).dirtBit = 1){
+                if(pageTable.get(k) != null){
+                    if(pageTable.get(k).refBit == 0 && pageTable.get(k).dirtBit == 1){
                         //write back to disk
                         //SysLib.rawwrite(blkNumber, byte [] b)
                         SysLib.rawwrite(pageTable.get(k).blockFrame, pageTable.get(k).cacheBlock);
@@ -251,7 +251,7 @@ public class Cache{
         
         }
         
-
+        return true;
     }
 
     /*
@@ -262,10 +262,10 @@ public class Cache{
     Still maintains clean block copies in Cache.java. Must be called when shutting down ThreadOS.  
     */
     public void sync(){
-        for(int i = 0; i < pageTable.size()){
+        for(int i = 0; i < pageTable.size(); i++){
             if(pageTable.get(i) != null){
                 if(pageTable.get(i).dirtBit == 1){
-                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock)
+                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock);
                     pageTable.get(i).dirtBit = 0;
                 }
             }
@@ -283,10 +283,10 @@ public class Cache{
     Should be called when you choose to run a different test case that doesn’t   include the cached data from the previous test. 
     */
     public void flush(){
-        for(int i = 0; i < pageTable.size()){
+        for(int i = 0; i < pageTable.size(); i++){
             if(pageTable.get(i) != null){
                 if(pageTable.get(i).dirtBit == 1){
-                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock)
+                    SysLib.rawwrite(pageTable.get(i).blockFrame, pageTable.get(i).cacheBlock);
                     pageTable.get(i).dirtBit = 0;
                 }
             }

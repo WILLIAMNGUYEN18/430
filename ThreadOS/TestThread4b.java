@@ -1,4 +1,6 @@
 import java.util.Date;
+import java.util.Random;
+
 class  TestThread4b extends Thread{
     private String name;
     private String able;

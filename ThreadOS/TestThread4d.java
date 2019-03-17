@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.util.Random;
 class  TestThread4b extends Thread{
     private String name;
     private String able;
@@ -29,7 +30,7 @@ class  TestThread4b extends Thread{
                 //Random rand = new Random();
                 byte[] buffer = new byte[512];
                 //int rand = rand.nextInt(1000);
-                SysLib.cwrite(1, buffer);
+                SysLib.cwrite(i, buffer);
                 SysLib.cread(100-i, buffer);
             }
         } else{
