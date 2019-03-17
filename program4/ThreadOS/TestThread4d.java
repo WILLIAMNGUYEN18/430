@@ -1,13 +1,13 @@
 import java.util.Date;
 import java.util.Random;
-class  TestThread4b extends Thread{
+class TestThread4d extends Thread{
     private String name;
     private String able;
     private long submissionTime;
     private long responseTime;
     private long completionTime;
 
-    public TestThread4b(String args[]){
+    public TestThread4d(String args[]){
         name = args[0];
         able = args[1];
         submissionTime = new Date( ).getTime( );
@@ -18,7 +18,7 @@ class  TestThread4b extends Thread{
     //disk cache at all, i.e., purposely accessing blocks to 
     //create cache misses.  
     public void run(){
-        System.out.println("Locality Test");
+        System.out.println("Adversary Test");
         SysLib.cout( "Thread[" + name +"] is running\n" );
         System.out.println("check1");
         responseTime = new Date( ).getTime( );

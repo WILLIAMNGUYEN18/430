@@ -1,13 +1,13 @@
 import java.util.Date;
 import java.util.Random;
-class  TestThread4b extends Thread{
+class TestThread4c extends Thread{
     private String name;
     private String able;
     private long submissionTime;
     private long responseTime;
     private long completionTime;
 
-    public TestThread4b(String args[]){
+    public TestThread4c(String args[]){
         name = args[0];
         able = args[1];
         submissionTime = new Date( ).getTime( );
@@ -17,7 +17,7 @@ class  TestThread4b extends Thread{
     //90% of the total disk operations should be localized accesses 
     //and 10% should be random accesses. 
     public void run(){
-        System.out.println("Locality Test");
+        System.out.println("Mixed Locality and Random Access Test");
         SysLib.cout( "Thread[" + name +"] is running\n" );
         System.out.println("check1");
         responseTime = new Date( ).getTime( );
